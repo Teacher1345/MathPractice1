@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Math Practice Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Prevent number input arrows */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+    
+    /* Improve touch response on mobile */
+    button { touch-action: manipulation; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 overflow-x-hidden">
+
+  <!-- ================= SETUP SCREEN ================= -->
+  <div id="setup-screen" class="min-h-screen flex items-center justify-center p-4 sm:p-6">
+    <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 max-w-2xl w-full mx-auto">
+      <div class="flex items-center justify-center space-x-3 mb-6 sm:mb-8">
+        <i class="fa-solid fa-calculator text-3xl sm:text-4xl text-blue-500"></i>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-center">Math Practice</h1>
+      </div>
+
+      <div class="mb-5 sm:mb-6">
+        <label class="block text-base sm:text-lg font-semibold text-slate-700 mb-2">Participant Name</label>
+        <input type="text" id="user-name" placeholder="Enter your name..." class="w-full p-3 border-2 border-slate-200 rounded-xl text-base sm:text-lg focus:border-blue-500 outline-none">
+      </div>
+
+      <div class="mb-5 sm:mb-6">
+        <label class="block text-base sm:text-lg font-semibold text-slate-700 mb-2">Practice Mode</label>
+        <div class="flex flex-col sm:flex-row gap-2 text-sm sm:text-base w-full">
+          <button onclick="setMode('mult')" id="mode-mult" class="w-full sm:w-auto flex-1 py-3 px-2 rounded-xl font-bold transition-all bg-blue-500 text-white shadow-md">Multiplication</button>
+          <button onclick="setMode('div')" id="mode-div" class="w-full sm:w-auto flex-1 py-3 px-2 rounded-xl font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">Division</button>
+          <button onclick="setMode('mixed')" id="mode-mixed" class="w-full sm:w-auto flex-1 py-3 px-2 rounded-xl font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">Mixed Practice</button>
+        </div>
+      </div>
+
+      <div id="mult-section" class="mb-5 sm:mb-6">
+        <label class="block text-base sm:text-lg font-semibold text-slate-700 mb-2">Multiplication Tables (×)</label>
+        <div id="mult-grid" class="flex flex-wrap gap-2 justify-start"></div>
+      </div>
+
+      <div id="div-section" class="mb-5 sm:mb-6 hidden">
+        <label class="block text-base sm:text-lg font-semibold text-slate-700 mb-2">Division Tables (÷)</label>
+        <div id="div-grid" class="flex flex-wrap gap-2 justify-start"></div>
+      </div>
+
+      <div class="mb-6 sm:mb-8">
+        <label class="block text-base sm:text-lg font-semibold text-slate-700 mb-2">Number of Questions</label>
+        <input type="number" id="num-questions" value="10" min="1" max="100" inputmode="numeric" pattern="[0-9]*" class="w-full sm:w-48 p-3 border-2 border-slate-200 rounded-xl text-base sm:text-lg focus:border-blue-500 outline-none">
+      </div>
+
+      <button onclick="startQuiz()" class="w-full bg-green-500 hover:bg-green-600 text-white text-lg sm:text-xl font-bold py-3 sm:py-4 rounded-2xl flex items-center justify-center space-x-2 transition-colors">
+        <i class="fa-solid fa-play"></i>
+        <span>Start Practice</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= PLAYING SCREEN ================= -->
+  <div id="playing-screen" class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 hidden">
+    <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 max-w-lg w-full mx-auto">
+      
+      <div class="flex justify-between items-center mb-5 sm:mb-6">
+        <span id="progress-text" class="text-sm sm:text-base text-slate-500 font-medium">Question 1 of 10</span>
+        <button onclick="showScreen('setup')" class="flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors font-semibold">
+          <i class="fa-solid fa-xmark"></i><span>Exit</span>
+        </button>
+      </div>
+      
+      <div class="w-full bg-slate-100 h-2 rounded-full mb-6 sm:mb-8 overflow-hidden">
+        <div id="progress-bar" class="bg-blue-500 h-full transition-all duration-300 w-0"></div>
+      </div>
+
+      <div class="text-center mb-8 sm:mb-10 w-full overflow-hidden">
+        <div id="question-text" class="text-4xl sm:text-6xl font-black text-slate-800 tracking-wider flex items-center justify-center flex-wrap gap-x-2">
+          2 × 2 <span class="text-blue-500">=</span> ?
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center w-full">
+        <input type="number" id="answer-input" placeholder="0" inputmode="numeric" pattern="[0-9]*" class="w-full max-w-[10rem] sm:max-w-[12rem] text-center text-3xl sm:text-4xl font-bold p-3 sm:p-4 border-4 border-slate-200 rounded-2xl focus:border-blue-500 outline-none mb-5 sm:mb-6">
+        
+        <button id="submit-btn" onclick="handleSubmit()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 sm:py-4 rounded-xl text-base sm:text-lg transition-colors">
+          Submit Answer
+        </button>
+        <button id="next-btn" onclick="handleNext()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 sm:py-4 rounded-xl text-base sm:text-lg transition-colors hidden flex items-center justify-center space-x-2">
+          <span id="next-btn-text">Next Question</span> <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <div id="feedback-box" class="min-h-[4rem] mt-4 sm:mt-6 flex items-center justify-center opacity-0 transition-opacity w-full">
+        <div id="feedback-content" class="flex items-center space-x-2 text-base sm:text-lg font-bold px-3 sm:px-4 py-2 rounded-lg text-center w-full justify-center">
+          <i id="feedback-icon" class="fa-solid shrink-0"></i>
+          <span id="feedback-text"></span>
+        </div>
+      </div>
+
+      <div id="attempts-container" class="flex justify-center space-x-2 mt-2">
+        <div class="attempt-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-500"></div>
+        <div class="attempt-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-500"></div>
+        <div class="attempt-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-500"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= RESULTS SCREEN ================= -->
+  <div id="results-screen" class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 hidden">
+    <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-10 max-w-md w-full text-center mx-auto">
+      
+      <div class="mb-5 sm:mb-6">
+        <div id="result-icon-container" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 bg-blue-100 text-blue-500">
+          <i id="result-icon" class="fa-solid fa-calculator text-4xl sm:text-5xl"></i>
+        </div>
+        <h2 id="result-message" class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-1 sm:mb-2">Good effort!</h2>
+      </div>
+
+      <div class="bg-slate-50 rounded-2xl p-5 sm:p-6 mb-6 sm:mb-8">
+        <div class="text-4xl sm:text-5xl font-black text-blue-500 mb-1 sm:mb-2">
+          <span id="final-score">0</span> / <span id="final-total">0</span>
+        </div>
+        <div id="final-percentage" class="text-sm sm:text-base text-slate-400 font-medium mb-3 sm:mb-4">Total Correct Answers (0%)</div>
+        
+        <div id="mult-stats" class="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 border-t border-slate-200 py-2 sm:py-3 hidden">
+          <span>Multiplication:</span> <span id="mult-score-text">0 / 0</span>
+        </div>
+        <div id="div-stats" class="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 border-t border-slate-200 py-2 sm:py-3 hidden">
+          <span>Division:</span> <span id="div-score-text">0 / 0</span>
+        </div>
+
+        <div id="saving-indicator" class="mt-3 sm:mt-4 text-xs sm:text-sm text-blue-500 font-medium animate-pulse">
+          <i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving results...
+        </div>
+      </div>
+
+      <button onclick="showScreen('setup')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 sm:py-4 rounded-xl text-base sm:text-lg transition-colors flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-rotate-right"></i>
+        <span>Practice Again</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= FIREBASE SETUP ================= -->
+  <!-- Switch to "compat" libraries to prevent Android file:// CORS blocking -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAZFmN48gROZMlGbgOY7k98CyADDfvBwr8",
+      authDomain: "mathpractice1-9c7a9.firebaseapp.com",
+      projectId: "mathpractice1-9c7a9",
+      storageBucket: "mathpractice1-9c7a9.firebasestorage.app",
+      messagingSenderId: "366553889377",
+      appId: "1:366553889377:web:2e9c33c5a0d4d3d9d18820",
+      measurementId: "G-EF9W7NFL3H"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    let currentUser = null;
+
+    // Authenticate user before writing to database
+    const initAuth = async () => {
+      try {
+        await auth.signInAnonymously();
+      } catch (e) {
+        console.error("Firebase auth error:", e);
+      }
+    };
+    initAuth();
+    auth.onAuthStateChanged(user => { currentUser = user; });
+
+    // Expose Firebase save function to the global window object
+    window.saveToFirebase = async (payload) => {
+      if (!currentUser) return false;
+      try {
+        await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('quizResults').add({
+          ...payload,
+          userId: currentUser.uid,
+          timestamp: new Date().toISOString()
+        });
+        return true;
+      } catch (error) {
+        console.error("Failed to save to Firebase:", error);
+        return false;
+      }
+    };
+  </script>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // --- State ---
+    const config = {
+      mode: 'mult', // 'mult', 'div', 'mixed'
+      multTables: [2, 3, 4, 5],
+      divTables: [2, 5]
+    };
+
+    let state = {
+      questions: [],
+      currentIndex: 0,
+      attemptsLeft: 3,
+      score: 0,
+      stats: { multScore: 0, multTotal: 0, divScore: 0, divTotal: 0 },
+      isAnswered: false
+    };
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTableSelectors('mult');
+      renderTableSelectors('div');
+
+      // Allow "Enter" key to submit answers
+      document.getElementById('answer-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (state.isAnswered) handleNext();
+          else handleSubmit();
+        }
+      });
+    });
+
+    // --- Setup UI Handlers ---
+    function setMode(mode) {
+      config.mode = mode;
+      
+      // Update Buttons with responsive flex classes
+      const modes = ['mult', 'div', 'mixed'];
+      modes.forEach(m => {
+        const btn = document.getElementById(`mode-${m}`);
+        if (m === mode) {
+          btn.className = "w-full sm:w-auto flex-1 py-3 px-2 rounded-xl font-bold transition-all bg-blue-500 text-white shadow-md";
+        } else {
+          btn.className = "w-full sm:w-auto flex-1 py-3 px-2 rounded-xl font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
+        }
+      });
+
+      // Show/Hide Sections
+      document.getElementById('mult-section').classList.toggle('hidden', mode === 'div');
+      document.getElementById('div-section').classList.toggle('hidden', mode === 'mult');
+    }
+
+    function toggleTable(type, num) {
+      const arr = config[type + 'Tables'];
+      const index = arr.indexOf(num);
+      if (index > -1) arr.splice(index, 1);
+      else arr.push(num);
+      renderTableSelectors(type);
+    }
+
+    function renderTableSelectors(type) {
+      const grid = document.getElementById(`${type}-grid`);
+      grid.innerHTML = '';
+      for (let i = 1; i <= 12; i++) {
+        const isSelected = config[type + 'Tables'].includes(i);
+        const btn = document.createElement('button');
+        btn.innerText = i;
+        btn.onclick = () => toggleTable(type, i);
+        // Made sizing responsive for the grids
+        if (isSelected) {
+          btn.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-xl text-base sm:text-lg font-bold transition-all bg-blue-500 text-white shadow-md transform scale-105 shrink-0";
+        } else {
+          btn.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-xl text-base sm:text-lg font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0";
+        }
+        grid.appendChild(btn);
+      }
+    }
+
+    // --- Screen Management ---
+    function showScreen(screenId) {
+      document.getElementById('setup-screen').classList.add('hidden');
+      document.getElementById('playing-screen').classList.add('hidden');
+      document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById(`${screenId}-screen`).classList.remove('hidden');
+    }
+
+    // --- Core Game Logic ---
+    function startQuiz() {
+      const userName = document.getElementById('user-name').value.trim();
+      const numQs = parseInt(document.getElementById('num-questions').value) || 10;
+
+      if (!userName) return alert("Please enter your name.");
+      
+      const availableTypes = [];
+      if ((config.mode === 'mult' || config.mode === 'mixed') && config.multTables.length > 0) availableTypes.push('mult');
+      if ((config.mode === 'div' || config.mode === 'mixed') && config.divTables.length > 0) availableTypes.push('div');
+
+      if (availableTypes.length === 0) return alert("Please select at least one number table.");
+
+      state.questions = [];
+      state.stats = { multScore: 0, multTotal: 0, divScore: 0, divTotal: 0 };
+      
+      for (let i = 0; i < numQs; i++) {
+        const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+        if (type === 'mult') {
+          state.stats.multTotal++;
+          const table = config.multTables[Math.floor(Math.random() * config.multTables.length)];
+          const multiplier = Math.floor(Math.random() * 12) + 1;
+          state.questions.push({ type: 'mult', text: `${table} × ${multiplier}`, answer: table * multiplier });
+        } else {
+          state.stats.divTotal++;
+          const table = config.divTables[Math.floor(Math.random() * config.divTables.length)];
+          const multiplier = Math.floor(Math.random() * 12) + 1;
+          state.questions.push({ type: 'div', text: `${table * multiplier} ÷ ${table}`, answer: multiplier });
+        }
+      }
+
+      state.currentIndex = 0;
+      state.score = 0;
+      
+      loadQuestion();
+      showScreen('playing');
+    }
+
+    function loadQuestion() {
+      state.isAnswered = false;
+      state.attemptsLeft = 3;
+      
+      const q = state.questions[state.currentIndex];
+      // Reset equation text back to '?'
+      document.getElementById('question-text').innerHTML = `<span>${q.text}</span> <span class="text-blue-500">=</span> <span>?</span>`;
+      document.getElementById('progress-text').innerText = `Question ${state.currentIndex + 1} of ${state.questions.length}`;
+      document.getElementById('progress-bar').style.width = `${(state.currentIndex / state.questions.length) * 100}%`;
+      
+      const input = document.getElementById('answer-input');
+      input.value = '';
+      input.disabled = false;
+      
+      // Reset input styling back to default
+      input.classList.remove('bg-green-50', 'text-green-600', 'border-green-400', 'bg-red-50', 'text-red-600', 'border-red-400');
+      input.classList.add('border-slate-200');
+      
+      document.getElementById('submit-btn').classList.remove('hidden');
+      document.getElementById('next-btn').classList.add('hidden');
+      document.getElementById('feedback-box').classList.add('opacity-0');
+      document.getElementById('attempts-container').classList.remove('hidden');
+      
+      updateAttemptsUI();
+      
+      // Auto-focus input - delayed slightly for mobile keyboards
+      setTimeout(() => input.focus(), 150);
+    }
+
+    function updateAttemptsUI() {
+      const dots = document.querySelectorAll('.attempt-dot');
+      dots.forEach((dot, index) => {
+        dot.className = `attempt-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${index < state.attemptsLeft ? 'bg-blue-500' : 'bg-slate-200'}`;
+      });
+    }
+
+    function handleSubmit() {
+      if (state.isAnswered) return;
+      const inputVal = document.getElementById('answer-input').value;
+      if (inputVal === '') return;
+
+      const numAnswer = parseInt(inputVal, 10);
+      const q = state.questions[state.currentIndex];
+
+      if (numAnswer === q.answer) {
+        // Correct Answer
+        state.score++;
+        if (q.type === 'mult') state.stats.multScore++;
+        else state.stats.divScore++;
+        
+        showFeedback('success', 'Correct! Great job!');
+        
+        // Show the answer in green in the equation
+        document.getElementById('question-text').innerHTML = `<span>${q.text}</span> <span class="text-blue-500">=</span> <span class="text-green-500">${q.answer}</span>`;
+        
+        finalizeQuestion(true); // Pass true because they got it right
+      } else {
+        // Incorrect Answer
+        state.attemptsLeft--;
+        updateAttemptsUI();
+        
+        if (state.attemptsLeft > 0) {
+          showFeedback('warning', `Incorrect. Try again! (${state.attemptsLeft} attempt${state.attemptsLeft > 1 ? 's' : ''} left)`);
+          const input = document.getElementById('answer-input');
+          input.value = '';
+          input.focus();
+        } else {
+          // Out of attempts - Show Correct Answer!
+          showFeedback('error', `Out of attempts! The correct answer is ${q.answer}.`);
+          
+          // Place the correct answer in the input box for them to see
+          const input = document.getElementById('answer-input');
+          input.value = q.answer;
+          
+          // Show the answer in red in the equation
+          document.getElementById('question-text').innerHTML = `<span>${q.text}</span> <span class="text-blue-500">=</span> <span class="text-red-500">${q.answer}</span>`;
+          
+          finalizeQuestion(false); // Pass false because they got it wrong
+        }
+      }
+    }
+
+    function showFeedback(type, message) {
+      const box = document.getElementById('feedback-box');
+      const content = document.getElementById('feedback-content');
+      const icon = document.getElementById('feedback-icon');
+      const text = document.getElementById('feedback-text');
+
+      box.classList.remove('opacity-0');
+      text.innerText = message;
+
+      if (type === 'success') {
+        content.className = 'flex items-center space-x-2 text-sm sm:text-lg font-bold px-3 sm:px-4 py-2 rounded-lg text-green-600 bg-green-50 text-center w-full justify-center';
+        icon.className = 'fa-solid fa-circle-check text-lg sm:text-xl shrink-0';
+      } else if (type === 'error') {
+        content.className = 'flex items-center space-x-2 text-sm sm:text-lg font-bold px-3 sm:px-4 py-2 rounded-lg text-red-600 bg-red-50 text-center w-full justify-center';
+        icon.className = 'fa-solid fa-circle-xmark text-lg sm:text-xl shrink-0';
+      } else {
+        content.className = 'flex items-center space-x-2 text-sm sm:text-lg font-bold px-3 sm:px-4 py-2 rounded-lg text-orange-500 bg-orange-50 text-center w-full justify-center';
+        icon.className = 'fa-solid fa-circle-exclamation text-lg sm:text-xl shrink-0';
+      }
+    }
+
+    function finalizeQuestion(isCorrect) {
+      state.isAnswered = true;
+      const input = document.getElementById('answer-input');
+      input.disabled = true;
+      
+      // Apply visual styling to the input based on correct/incorrect
+      input.classList.remove('border-slate-200');
+      if (isCorrect) {
+        input.classList.add('border-green-400', 'bg-green-50', 'text-green-600');
+      } else {
+        input.classList.add('border-red-400', 'bg-red-50', 'text-red-600');
+      }
+      
+      document.getElementById('submit-btn').classList.add('hidden');
+      const nextBtn = document.getElementById('next-btn');
+      nextBtn.classList.remove('hidden');
+      
+      document.getElementById('attempts-container').classList.add('hidden');
+      
+      document.getElementById('next-btn-text').innerText = 
+        (state.currentIndex < state.questions.length - 1) ? 'Next Question' : 'See Results';
+      
+      nextBtn.focus();
+    }
+
+    function handleNext() {
+      if (state.currentIndex < state.questions.length - 1) {
+        state.currentIndex++;
+        loadQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      const percentage = Math.round((state.score / state.questions.length) * 100);
+      
+      document.getElementById('final-score').innerText = state.score;
+      document.getElementById('final-total').innerText = state.questions.length;
+      document.getElementById('final-percentage').innerText = `Total Correct Answers (${percentage}%)`;
+      
+      // Update Message & Icon
+      const msgEl = document.getElementById('result-message');
+      const iconCont = document.getElementById('result-icon-container');
+      const icon = document.getElementById('result-icon');
+      
+      if (percentage >= 90) {
+        msgEl.innerText = "Outstanding!";
+        iconCont.className = "w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 bg-green-100 text-green-500";
+        icon.className = "fa-solid fa-medal text-4xl sm:text-5xl";
+      } else if (percentage >= 70) {
+        msgEl.innerText = "Great job!";
+        iconCont.className = "w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 bg-green-100 text-green-500";
+        icon.className = "fa-solid fa-thumbs-up text-4xl sm:text-5xl";
+      } else {
+        msgEl.innerText = "Good effort!";
+        iconCont.className = "w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 bg-blue-100 text-blue-500";
+        icon.className = "fa-solid fa-calculator text-4xl sm:text-5xl";
+      }
+
+      // Stats Breakdown
+      const mStats = document.getElementById('mult-stats');
+      const dStats = document.getElementById('div-stats');
+      
+      if (config.mode === 'mixed' || config.mode === 'mult') {
+        mStats.classList.remove('hidden');
+        document.getElementById('mult-score-text').innerText = `${state.stats.multScore} / ${state.stats.multTotal}`;
+      } else mStats.classList.add('hidden');
+
+      if (config.mode === 'mixed' || config.mode === 'div') {
+        dStats.classList.remove('hidden');
+        document.getElementById('div-score-text').innerText = `${state.stats.divScore} / ${state.stats.divTotal}`;
+      } else dStats.classList.add('hidden');
+
+      showScreen('results');
+      
+      // Save results to the cloud
+      saveResultsToCloud();
+    }
+
+    async function saveResultsToCloud() {
+      const savingIndicator = document.getElementById('saving-indicator');
+      savingIndicator.classList.remove('hidden');
+      savingIndicator.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving results...';
+      savingIndicator.classList.add('text-blue-500', 'animate-pulse');
+      savingIndicator.classList.remove('text-green-500', 'text-red-500');
+      
+      const payload = {
+        date: new Date().toLocaleString(),
+        userName: document.getElementById('user-name').value.trim(),
+        mode: config.mode,
+        multScore: state.stats.multScore,
+        multTotal: state.stats.multTotal,
+        divScore: state.stats.divScore,
+        divTotal: state.stats.divTotal,
+        totalScore: state.score,
+        totalQuestions: state.questions.length
+      };
+
+      // 1. Save to Firebase
+      if (window.saveToFirebase) {
+        const firebaseSuccess = await window.saveToFirebase(payload);
+        if (firebaseSuccess) {
+          savingIndicator.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Saved to Firebase!';
+          savingIndicator.classList.remove('text-blue-500', 'animate-pulse');
+          savingIndicator.classList.add('text-green-500');
+        } else {
+          savingIndicator.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Failed to save to Firebase.';
+          savingIndicator.classList.remove('text-blue-500', 'animate-pulse');
+          savingIndicator.classList.add('text-red-500');
+        }
+      }
+
+      // 2. Keep saving to Google Sheets if running inside Apps Script
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run
+          .withSuccessHandler(() => {
+            savingIndicator.innerHTML += '<br><i class="fa-solid fa-check mr-1"></i> Saved to Google Sheets!';
+          })
+          .withFailureHandler((err) => {
+            console.error("Failed Google Sheets save:", err);
+          })
+          .saveResults(payload);
+      }
+    }
+  </script>
+</body>
+</html>
