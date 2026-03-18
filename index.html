@@ -18,10 +18,14 @@
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 overflow-x-hidden">
 
-  <!-- ================= SETUP SCREEN ================= -->
-  <div id="setup-screen" class="min-h-screen flex items-center justify-center p-4 sm:p-6">
-    <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 max-w-2xl w-full mx-auto">
-      <div class="flex items-center justify-center space-x-3 mb-6 sm:mb-8">
+  <div id="setup-screen" class="min-h-screen flex items-center justify-center p-4 sm:p-6 relative">
+    <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 max-w-2xl w-full mx-auto relative">
+      
+      <button onclick="showPasswordModal()" class="absolute top-6 right-6 text-slate-400 hover:text-blue-500 transition-colors p-2" title="Teacher Dashboard">
+        <i class="fa-solid fa-chart-column text-xl"></i>
+      </button>
+
+      <div class="flex items-center justify-center space-x-3 mb-6 sm:mb-8 mt-4 sm:mt-0">
         <i class="fa-solid fa-calculator text-3xl sm:text-4xl text-blue-500"></i>
         <h1 class="text-2xl sm:text-3xl font-extrabold text-center">Math Practice</h1>
       </div>
@@ -62,7 +66,6 @@
     </div>
   </div>
 
-  <!-- ================= PLAYING SCREEN ================= -->
   <div id="playing-screen" class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 hidden">
     <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 max-w-lg w-full mx-auto">
       
@@ -109,7 +112,6 @@
     </div>
   </div>
 
-  <!-- ================= RESULTS SCREEN ================= -->
   <div id="results-screen" class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 hidden">
     <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-10 max-w-md w-full text-center mx-auto">
       
@@ -145,8 +147,74 @@
     </div>
   </div>
 
-  <!-- ================= FIREBASE SETUP ================= -->
-  <!-- Switch to "compat" libraries to prevent Android file:// CORS blocking -->
+  <div id="dashboard-screen" class="min-h-screen bg-slate-50 p-4 sm:p-8 hidden">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 flex items-center gap-3">
+            <i class="fa-solid fa-users text-blue-500"></i> Student Performance
+          </h1>
+          <p class="text-slate-500 mt-1">Live results from Firebase Database</p>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="loadDashboardData()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-rotate-right"></i> Refresh
+          </button>
+          <button onclick="showScreen('setup')" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-arrow-left"></i> Back to Setup
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-sm uppercase tracking-wider">
+                <th class="p-4 font-bold">Date & Time</th>
+                <th class="p-4 font-bold">Participant Name</th>
+                <th class="p-4 font-bold">Mode</th>
+                <th class="p-4 font-bold text-center">Score</th>
+                <th class="p-4 font-bold text-center">Multiplication</th>
+                <th class="p-4 font-bold text-center">Division</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-tbody" class="divide-y divide-slate-100">
+              </tbody>
+          </table>
+        </div>
+        
+        <div id="dashboard-loading" class="p-12 text-center text-slate-500 hidden">
+          <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-blue-500"></i>
+          <p class="font-medium">Loading student records...</p>
+        </div>
+        
+        <div id="dashboard-empty" class="p-12 text-center text-slate-500 hidden">
+          <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-300"></i>
+          <p class="font-medium">No quiz records found yet.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= PASSWORD MODAL ================= -->
+  <div id="password-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 max-w-sm w-full relative">
+      <h2 class="text-2xl font-bold text-slate-800 mb-2">Teacher Access</h2>
+      <p class="text-slate-500 mb-6 text-sm">Please enter the teacher password to view the dashboard.</p>
+      
+      <input type="password" id="dashboard-password" placeholder="Enter password..." class="w-full p-3 border-2 border-slate-200 rounded-xl text-lg focus:border-blue-500 outline-none mb-2">
+      <p id="password-error" class="text-red-500 text-sm h-5 mb-4 hidden">Incorrect password.</p>
+      
+      <div class="flex gap-3">
+        <button onclick="closePasswordModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors">Cancel</button>
+        <button onclick="verifyPassword()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition-colors">Enter</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
@@ -198,11 +266,10 @@
     };
   </script>
 
-  <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
     // --- State ---
     const config = {
-      mode: 'mult', // 'mult', 'div', 'mixed'
+      mode: 'mult', 
       multTables: [2, 3, 4, 5],
       divTables: [2, 5]
     };
@@ -221,7 +288,6 @@
       renderTableSelectors('mult');
       renderTableSelectors('div');
 
-      // Allow "Enter" key to submit answers
       document.getElementById('answer-input').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -231,11 +297,18 @@
       });
     });
 
+    // --- Screen Management ---
+    function showScreen(screenId) {
+      document.getElementById('setup-screen').classList.add('hidden');
+      document.getElementById('playing-screen').classList.add('hidden');
+      document.getElementById('results-screen').classList.add('hidden');
+      document.getElementById('dashboard-screen').classList.add('hidden');
+      document.getElementById(`${screenId}-screen`).classList.remove('hidden');
+    }
+
     // --- Setup UI Handlers ---
     function setMode(mode) {
       config.mode = mode;
-      
-      // Update Buttons with responsive flex classes
       const modes = ['mult', 'div', 'mixed'];
       modes.forEach(m => {
         const btn = document.getElementById(`mode-${m}`);
@@ -245,8 +318,6 @@
           btn.className = "w-full sm:w-auto flex-1 py-3 px-2 rounded-xl font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200";
         }
       });
-
-      // Show/Hide Sections
       document.getElementById('mult-section').classList.toggle('hidden', mode === 'div');
       document.getElementById('div-section').classList.toggle('hidden', mode === 'mult');
     }
@@ -267,7 +338,6 @@
         const btn = document.createElement('button');
         btn.innerText = i;
         btn.onclick = () => toggleTable(type, i);
-        // Made sizing responsive for the grids
         if (isSelected) {
           btn.className = "w-10 h-10 sm:w-12 sm:h-12 rounded-xl text-base sm:text-lg font-bold transition-all bg-blue-500 text-white shadow-md transform scale-105 shrink-0";
         } else {
@@ -275,14 +345,6 @@
         }
         grid.appendChild(btn);
       }
-    }
-
-    // --- Screen Management ---
-    function showScreen(screenId) {
-      document.getElementById('setup-screen').classList.add('hidden');
-      document.getElementById('playing-screen').classList.add('hidden');
-      document.getElementById('results-screen').classList.add('hidden');
-      document.getElementById(`${screenId}-screen`).classList.remove('hidden');
     }
 
     // --- Core Game Logic ---
@@ -328,7 +390,6 @@
       state.attemptsLeft = 3;
       
       const q = state.questions[state.currentIndex];
-      // Reset equation text back to '?'
       document.getElementById('question-text').innerHTML = `<span>${q.text}</span> <span class="text-blue-500">=</span> <span>?</span>`;
       document.getElementById('progress-text').innerText = `Question ${state.currentIndex + 1} of ${state.questions.length}`;
       document.getElementById('progress-bar').style.width = `${(state.currentIndex / state.questions.length) * 100}%`;
@@ -337,7 +398,6 @@
       input.value = '';
       input.disabled = false;
       
-      // Reset input styling back to default
       input.classList.remove('bg-green-50', 'text-green-600', 'border-green-400', 'bg-red-50', 'text-red-600', 'border-red-400');
       input.classList.add('border-slate-200');
       
@@ -347,8 +407,6 @@
       document.getElementById('attempts-container').classList.remove('hidden');
       
       updateAttemptsUI();
-      
-      // Auto-focus input - delayed slightly for mobile keyboards
       setTimeout(() => input.focus(), 150);
     }
 
@@ -368,19 +426,14 @@
       const q = state.questions[state.currentIndex];
 
       if (numAnswer === q.answer) {
-        // Correct Answer
         state.score++;
         if (q.type === 'mult') state.stats.multScore++;
         else state.stats.divScore++;
         
         showFeedback('success', 'Correct! Great job!');
-        
-        // Show the answer in green in the equation
         document.getElementById('question-text').innerHTML = `<span>${q.text}</span> <span class="text-blue-500">=</span> <span class="text-green-500">${q.answer}</span>`;
-        
-        finalizeQuestion(true); // Pass true because they got it right
+        finalizeQuestion(true); 
       } else {
-        // Incorrect Answer
         state.attemptsLeft--;
         updateAttemptsUI();
         
@@ -390,17 +443,11 @@
           input.value = '';
           input.focus();
         } else {
-          // Out of attempts - Show Correct Answer!
           showFeedback('error', `Out of attempts! The correct answer is ${q.answer}.`);
-          
-          // Place the correct answer in the input box for them to see
           const input = document.getElementById('answer-input');
           input.value = q.answer;
-          
-          // Show the answer in red in the equation
           document.getElementById('question-text').innerHTML = `<span>${q.text}</span> <span class="text-blue-500">=</span> <span class="text-red-500">${q.answer}</span>`;
-          
-          finalizeQuestion(false); // Pass false because they got it wrong
+          finalizeQuestion(false); 
         }
       }
     }
@@ -431,7 +478,6 @@
       const input = document.getElementById('answer-input');
       input.disabled = true;
       
-      // Apply visual styling to the input based on correct/incorrect
       input.classList.remove('border-slate-200');
       if (isCorrect) {
         input.classList.add('border-green-400', 'bg-green-50', 'text-green-600');
@@ -444,10 +490,7 @@
       nextBtn.classList.remove('hidden');
       
       document.getElementById('attempts-container').classList.add('hidden');
-      
-      document.getElementById('next-btn-text').innerText = 
-        (state.currentIndex < state.questions.length - 1) ? 'Next Question' : 'See Results';
-      
+      document.getElementById('next-btn-text').innerText = (state.currentIndex < state.questions.length - 1) ? 'Next Question' : 'See Results';
       nextBtn.focus();
     }
 
@@ -467,7 +510,6 @@
       document.getElementById('final-total').innerText = state.questions.length;
       document.getElementById('final-percentage').innerText = `Total Correct Answers (${percentage}%)`;
       
-      // Update Message & Icon
       const msgEl = document.getElementById('result-message');
       const iconCont = document.getElementById('result-icon-container');
       const icon = document.getElementById('result-icon');
@@ -486,7 +528,6 @@
         icon.className = "fa-solid fa-calculator text-4xl sm:text-5xl";
       }
 
-      // Stats Breakdown
       const mStats = document.getElementById('mult-stats');
       const dStats = document.getElementById('div-stats');
       
@@ -501,8 +542,6 @@
       } else dStats.classList.add('hidden');
 
       showScreen('results');
-      
-      // Save results to the cloud
       saveResultsToCloud();
     }
 
@@ -525,7 +564,6 @@
         totalQuestions: state.questions.length
       };
 
-      // 1. Save to Firebase
       if (window.saveToFirebase) {
         const firebaseSuccess = await window.saveToFirebase(payload);
         if (firebaseSuccess) {
@@ -538,17 +576,98 @@
           savingIndicator.classList.add('text-red-500');
         }
       }
+    }
 
-      // 2. Keep saving to Google Sheets if running inside Apps Script
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run
-          .withSuccessHandler(() => {
-            savingIndicator.innerHTML += '<br><i class="fa-solid fa-check mr-1"></i> Saved to Google Sheets!';
-          })
-          .withFailureHandler((err) => {
-            console.error("Failed Google Sheets save:", err);
-          })
-          .saveResults(payload);
+    // --- Dashboard Logic ---
+    const TEACHER_PASSWORD = "admin"; // Change this to your preferred password
+
+    function showPasswordModal() {
+      const modal = document.getElementById('password-modal');
+      const input = document.getElementById('dashboard-password');
+      document.getElementById('password-error').classList.add('hidden');
+      input.value = '';
+      modal.classList.remove('hidden');
+      setTimeout(() => input.focus(), 100);
+      
+      // Allow pressing 'Enter' on keyboard to submit password
+      input.onkeypress = function(e) {
+        if (e.key === 'Enter') {
+          verifyPassword();
+        }
+      };
+    }
+
+    function closePasswordModal() {
+      document.getElementById('password-modal').classList.add('hidden');
+    }
+
+    function verifyPassword() {
+      const input = document.getElementById('dashboard-password').value;
+      if (input === TEACHER_PASSWORD) {
+        closePasswordModal();
+        showScreen('dashboard');
+        loadDashboardData();
+      } else {
+        document.getElementById('password-error').classList.remove('hidden');
+      }
+    }
+
+    async function loadDashboardData() {
+      const tbody = document.getElementById('dashboard-tbody');
+      const loading = document.getElementById('dashboard-loading');
+      const empty = document.getElementById('dashboard-empty');
+      
+      tbody.innerHTML = '';
+      loading.classList.remove('hidden');
+      empty.classList.add('hidden');
+
+      try {
+        const snapshot = await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('quizResults').get();
+        
+        let results = [];
+        snapshot.forEach(doc => {
+          results.push(doc.data());
+        });
+
+        // Sort latest first
+        results.sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
+
+        loading.classList.add('hidden');
+
+        if (results.length === 0) {
+          empty.classList.remove('hidden');
+          return;
+        }
+
+        results.forEach(data => {
+          const row = document.createElement('tr');
+          row.className = 'hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0';
+          
+          const percentage = Math.round((data.totalScore / data.totalQuestions) * 100) || 0;
+          let scoreColor = 'text-green-600 bg-green-50';
+          if (percentage < 70) scoreColor = 'text-blue-600 bg-blue-50';
+          if (percentage < 50) scoreColor = 'text-orange-600 bg-orange-50';
+
+          row.innerHTML = `
+            <td class="p-4 text-sm text-slate-500 whitespace-nowrap">${new Date(data.date).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</td>
+            <td class="p-4 font-semibold text-slate-800">${data.userName || 'Anonymous'}</td>
+            <td class="p-4 text-sm text-slate-500 capitalize">${data.mode}</td>
+            <td class="p-4 text-center">
+              <span class="px-3 py-1 rounded-full text-xs font-bold ${scoreColor}">
+                ${data.totalScore} / ${data.totalQuestions} (${percentage}%)
+              </span>
+            </td>
+            <td class="p-4 text-center text-sm text-slate-600">${data.mode !== 'div' ? `${data.multScore}/${data.multTotal}` : '-'}</td>
+            <td class="p-4 text-center text-sm text-slate-600">${data.mode !== 'mult' ? `${data.divScore}/${data.divTotal}` : '-'}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+        loading.classList.add('hidden');
+        empty.classList.remove('hidden');
+        empty.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-4xl mb-3 text-red-400"></i><p class="font-medium text-red-500">Error loading records. Check permissions.</p>';
       }
     }
   </script>
