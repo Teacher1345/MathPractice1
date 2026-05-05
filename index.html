@@ -681,8 +681,16 @@
       let ansStr = simpDenom === 1 ? `${simpNum}` : `${simpNum}/${simpDenom}`;
       if (ansNum === 0) ansStr = "0";
 
+      // Formats the output as a true vertical fraction inline
+      function getFractionHtml(n, d) {
+        return `<span class="inline-flex flex-col items-center justify-center align-middle mx-1 text-[0.8em] leading-none">
+          <span class="border-b-[4px] border-slate-800 w-full text-center pb-1 px-2">${n}</span>
+          <span class="pt-1 px-2">${d}</span>
+        </span>`;
+      }
+
       return {
-        text: `${n1}/${d1} ${sign} ${n2}/${d2}`,
+        text: `${getFractionHtml(n1, d1)} <span class="align-middle mx-2">${sign}</span> ${getFractionHtml(n2, d2)}`,
         answer: ansStr,
         hint: 'Format: a/b (Simplify your answer)'
       };
@@ -787,7 +795,7 @@
       let isCorrect = false;
 
       // Handle fractions equivalence (basic safety check)
-      if (q.text.includes('/') && userAns.includes('/')) {
+      if (q.text.includes('/') || (quizSettings.category === 'fractions' || q.text.includes('flex-col'))) {
          isCorrect = (userAns === q.answer);
       } else if (q.text.includes('.')) {
          // Allow things like .5 vs 0.5
