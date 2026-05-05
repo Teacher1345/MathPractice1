@@ -53,9 +53,11 @@
             <option value="subtraction">Subtraction</option>
             <option value="multiplication">Multiplication</option>
             <option value="division">Division</option>
-            <option value="exponents">Exponents</option>
+            <option value="integers">Integers (Positives & Negatives)</option>
             <option value="decimals">Decimals</option>
             <option value="fractions">Fractions</option>
+            <option value="exponents">Exponents</option>
+            <option value="mixed_topics">Mixed Topics</option>
           </select>
         </div>
 
@@ -91,13 +93,28 @@
             </div>
           </div>
 
-          <!-- Operation Option (For Decimals/Fractions) -->
+          <!-- Integer Signs Option -->
+          <div id="integerSignOption" class="hidden">
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Integer Signs</label>
+            <div class="flex flex-wrap gap-2">
+              <button class="flex-1 min-w-[80px] py-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium transition-colors intsign-btn active" data-val="mixed" onclick="selectIntSign(this)">Mixed</button>
+              <button class="flex-1 min-w-[80px] py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors intsign-btn" data-val="both_pos" onclick="selectIntSign(this)">Pos (+)</button>
+              <button class="flex-1 min-w-[80px] py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors intsign-btn" data-val="both_neg" onclick="selectIntSign(this)">Neg (-)</button>
+              <button class="flex-1 min-w-[80px] py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors intsign-btn" data-val="diff_signs" onclick="selectIntSign(this)">Pos & Neg</button>
+            </div>
+          </div>
+
+          <!-- Operation Option (For Decimals/Fractions/Integers) -->
           <div id="operationOption" class="hidden">
             <label class="block text-sm font-semibold text-slate-700 mb-1">Operation</label>
             <select id="opSelect" class="w-full px-4 py-2 rounded-lg border border-slate-200 outline-none bg-white">
+              <option value="all">All Operations (+, -, ×, ÷)</option>
               <option value="addsub">Addition & Subtraction</option>
+              <option value="multdiv">Multiplication & Division</option>
               <option value="add">Addition Only</option>
               <option value="sub">Subtraction Only</option>
+              <option value="mult">Multiplication Only</option>
+              <option value="div">Division Only</option>
             </select>
           </div>
 
@@ -268,6 +285,7 @@
     let selectedDigits = 2;
     let selectedRegroup = 'mixed';
     let selectedLayout = 'horizontal';
+    let selectedIntSign = 'mixed';
 
     function init() {
       toggleSubOptions(); // Set initial state
@@ -283,12 +301,14 @@
       const divRegroup = document.getElementById('regroupingOption');
       const divOp = document.getElementById('operationOption');
       const divLayout = document.getElementById('layoutOption');
+      const divIntSign = document.getElementById('integerSignOption');
 
       // Hide all first
       divDigits.classList.add('hidden');
       divRegroup.classList.add('hidden');
       divOp.classList.add('hidden');
       divLayout.classList.add('hidden');
+      divIntSign.classList.add('hidden');
       
       let hasVisibleOptions = false;
 
@@ -303,6 +323,11 @@
       } else if (cat === 'decimals') {
         divOp.classList.remove('hidden');
         divLayout.classList.remove('hidden');
+        hasVisibleOptions = true;
+      } else if (cat === 'integers') {
+        divOp.classList.remove('hidden');
+        divLayout.classList.remove('hidden');
+        divIntSign.classList.remove('hidden');
         hasVisibleOptions = true;
       } else if (cat === 'fractions') {
         divOp.classList.remove('hidden');
@@ -346,10 +371,31 @@
       selectedLayout = btn.getAttribute('data-val');
     }
 
+    function selectIntSign(btn) {
+      document.querySelectorAll('.intsign-btn').forEach(b => {
+        b.classList.remove('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
+        b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+      });
+      btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+      btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
+      selectedIntSign = btn.getAttribute('data-val');
+    }
+
     // --- MATH GENERATORS ---
     
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Resolves random selections like "All Operations" into specific operations
+    function resolveOp(opType) {
+      if (opType === 'addsub') return Math.random() > 0.5 ? 'add' : 'sub';
+      if (opType === 'multdiv') return Math.random() > 0.5 ? 'mult' : 'div';
+      if (opType === 'all') {
+        const ops = ['add', 'sub', 'mult', 'div'];
+        return ops[Math.floor(Math.random() * ops.length)];
+      }
+      return opType;
     }
 
     // Generate Add/Sub without Regrouping helper
@@ -465,6 +511,63 @@
       let a = b * ans;
       return { a: a, b: b, op: '÷', text: `${a} ÷ ${b}`, answer: ans.toString(), hint: '' };
     }
+    
+    function generateInteger(opType, signMode) {
+      let op = resolveOp(opType);
+      let a, b, ans, sign;
+      
+      // Helper for explicit signs
+      function getSignedInt(mode) {
+        if (mode === 'pos') return randomInt(1, 15);
+        if (mode === 'neg') return randomInt(-15, -1);
+        let val = randomInt(-15, 15);
+        return val === 0 ? randomInt(1, 15) : val; // avoid zeros for clearer sign logic
+      }
+
+      let modeA = 'mixed', modeB = 'mixed';
+      if (signMode === 'both_pos') { modeA = 'pos'; modeB = 'pos'; }
+      else if (signMode === 'both_neg') { modeA = 'neg'; modeB = 'neg'; }
+      else if (signMode === 'diff_signs') {
+        if (Math.random() > 0.5) { modeA = 'pos'; modeB = 'neg'; }
+        else { modeA = 'neg'; modeB = 'pos'; }
+      }
+      
+      if (op === 'div') {
+        b = getSignedInt(modeB);
+        let tempAns = getSignedInt(modeA);
+        a = b * tempAns;
+        ans = tempAns;
+        sign = '÷';
+      } else if (op === 'mult') {
+        a = getSignedInt(modeA);
+        b = getSignedInt(modeB);
+        // keep times tables somewhat bounded for mental math
+        if (a > 12) a = randomInt(1, 12);
+        if (a < -12) a = randomInt(-12, -1);
+        if (b > 12) b = randomInt(1, 12);
+        if (b < -12) b = randomInt(-12, -1);
+        ans = a * b;
+        sign = '×';
+      } else {
+        a = getSignedInt(modeA);
+        b = getSignedInt(modeB);
+        ans = op === 'add' ? a + b : a - b;
+        sign = op === 'add' ? '+' : '-';
+      }
+
+      // Format with explicit + signs if user isolated the signs
+      let formatInt = (num) => (num > 0 && signMode !== 'mixed') ? `+${num}` : `${num}`;
+      let aStr = formatInt(a);
+      let bStr = b < 0 ? `(${formatInt(b)})` : formatInt(b);
+      let textStr = `${aStr} ${sign} ${bStr}`;
+      
+      return {
+        a: aStr, b: bStr, op: sign,
+        text: textStr,
+        answer: ans.toString(),
+        hint: 'Watch your positive & negative rules! (e.g. -- is +)'
+      };
+    }
 
     function generateExponent() {
       let type = randomInt(1, 3);
@@ -487,66 +590,99 @@
     }
 
     function generateDecimal(opType) {
-      let op = opType;
-      if (op === 'addsub') op = Math.random() > 0.5 ? 'add' : 'sub';
+      let op = resolveOp(opType);
+      let a, b, ans, textStr, sign;
       
-      let places1 = randomInt(1, 2);
-      let places2 = randomInt(1, 2);
-      
-      let a = parseFloat((Math.random() * 50 + 1).toFixed(places1));
-      let b = parseFloat((Math.random() * 50 + 1).toFixed(places2));
-      
-      if (op === 'sub' && a < b) {
-        let t = a; a = b; b = t;
+      if (op === 'add' || op === 'sub') {
+        let places1 = randomInt(1, 2);
+        let places2 = randomInt(1, 2);
+        
+        a = parseFloat((Math.random() * 50 + 1).toFixed(places1));
+        b = parseFloat((Math.random() * 50 + 1).toFixed(places2));
+        
+        if (op === 'sub' && a < b) { let t = a; a = b; b = t; }
+        
+        if (op === 'add') {
+          ans = (a + b).toFixed(Math.max(places1, places2));
+        } else {
+          ans = (a - b).toFixed(Math.max(places1, places2));
+        }
+        sign = op === 'add' ? '+' : '-';
+      } else if (op === 'mult') {
+        a = parseFloat((Math.random() * 10 + 0.1).toFixed(1));
+        b = parseFloat((Math.random() * 10 + 0.1).toFixed(1));
+        ans = (a * b).toFixed(2);
+        sign = '×';
+      } else if (op === 'div') {
+        let expectedAns = parseFloat((Math.random() * 20 + 0.1).toFixed(1));
+        b = parseFloat((Math.random() * 9 + 0.1).toFixed(1)); 
+        a = Number((expectedAns * b).toFixed(2));
+        ans = expectedAns.toFixed(1);
+        sign = '÷';
       }
       
-      let ans;
-      let textStr;
-      if (op === 'add') {
-        ans = (a + b).toFixed(Math.max(places1, places2));
-        textStr = `${a} + ${b}`;
-      } else {
-        ans = (a - b).toFixed(Math.max(places1, places2));
-        textStr = `${a} - ${b}`;
-      }
+      textStr = `${a} ${sign} ${b}`;
+      ans = Number(ans).toString(); // Safely strip floating zero fluff
       
-      // Clean up trailing zeros safely via Number parse
-      ans = Number(ans).toString();
-      
-      return { a: a, b: b, op: op === 'add' ? '+' : '-', text: textStr, answer: ans, hint: 'Use a decimal point (.)' };
+      return { a: a, b: b, op: sign, text: textStr, answer: ans, hint: 'Use a decimal point (.)' };
     }
 
     function generateFraction(opType) {
-      let op = opType;
-      if (op === 'addsub') op = Math.random() > 0.5 ? 'add' : 'sub';
+      let op = resolveOp(opType);
+      let denoms = [2, 3, 4, 5, 6, 8, 10];
       
-      let denoms = [3, 4, 5, 6, 8, 10];
-      let d = denoms[randomInt(0, denoms.length - 1)];
+      let n1, d1, n2, d2, ansNum, ansDenom, sign;
       
-      let n1 = randomInt(1, d - 1);
-      let n2 = randomInt(1, d - 1);
-      
-      if (op === 'sub' && n1 < n2) {
-        let t = n1; n1 = n2; n2 = t;
+      if (op === 'add' || op === 'sub') {
+        d1 = denoms[randomInt(0, denoms.length - 1)];
+        d2 = d1; // Keeping same denom for foundational practice
+        n1 = randomInt(1, d1 - 1);
+        n2 = randomInt(1, d2 - 1);
+        
+        if (op === 'sub' && n1 < n2) { let t = n1; n1 = n2; n2 = t; }
+        
+        ansNum = op === 'add' ? (n1 + n2) : (n1 - n2);
+        ansDenom = d1;
+        sign = op === 'add' ? '+' : '-';
+      } else {
+        d1 = denoms[randomInt(0, denoms.length - 1)];
+        d2 = denoms[randomInt(0, denoms.length - 1)];
+        n1 = randomInt(1, d1 - 1);
+        n2 = randomInt(1, d2 - 1);
+        
+        if (op === 'mult') {
+          ansNum = n1 * n2;
+          ansDenom = d1 * d2;
+          sign = '×';
+        } else { // div
+          ansNum = n1 * d2;
+          ansDenom = d1 * n2;
+          sign = '÷';
+        }
       }
-      
-      let sign = op === 'add' ? '+' : '-';
-      let ansNum = op === 'add' ? (n1 + n2) : (n1 - n2);
       
       // Simplification logic
       function gcd(a, b) {
+        a = Math.abs(a);
+        b = Math.abs(b);
         return b === 0 ? a : gcd(b, a % b);
       }
       
-      let divisor = gcd(ansNum, d);
+      let divisor = gcd(ansNum, ansDenom);
       let simpNum = ansNum / divisor;
-      let simpDenom = d / divisor;
+      let simpDenom = ansDenom / divisor;
+      
+      // Keep denominator positive visually
+      if (simpDenom < 0) {
+        simpNum = -simpNum;
+        simpDenom = -simpDenom;
+      }
       
       let ansStr = simpDenom === 1 ? `${simpNum}` : `${simpNum}/${simpDenom}`;
       if (ansNum === 0) ansStr = "0";
 
       return {
-        text: `${n1}/${d} ${sign} ${n2}/${d}`,
+        text: `${n1}/${d1} ${sign} ${n2}/${d2}`,
         answer: ansStr,
         hint: 'Format: a/b (Simplify your answer)'
       };
@@ -557,17 +693,24 @@
       const total = parseInt(document.getElementById('numQuestions').value) || 10;
       const opSub = document.getElementById('opSelect').value;
       
-      quizSettings = { category: cat, total: total, digits: selectedDigits, regroup: selectedRegroup, op: opSub, layout: selectedLayout };
+      quizSettings = { category: cat, total: total, digits: selectedDigits, regroup: selectedRegroup, op: opSub, layout: selectedLayout, intSign: selectedIntSign };
       currentQuestions = [];
 
       for(let i=0; i<total; i++) {
-        if (cat === 'addition') currentQuestions.push(generateAddition(selectedDigits, selectedRegroup));
-        else if (cat === 'subtraction') currentQuestions.push(generateSubtraction(selectedDigits, selectedRegroup));
-        else if (cat === 'multiplication') currentQuestions.push(generateMultiplication());
-        else if (cat === 'division') currentQuestions.push(generateDivision());
-        else if (cat === 'exponents') currentQuestions.push(generateExponent());
-        else if (cat === 'decimals') currentQuestions.push(generateDecimal(opSub));
-        else if (cat === 'fractions') currentQuestions.push(generateFraction(opSub));
+        let currentCat = cat;
+        if (cat === 'mixed_topics') {
+          const cats = ['addition', 'subtraction', 'multiplication', 'division', 'integers', 'decimals', 'fractions', 'exponents'];
+          currentCat = cats[Math.floor(Math.random() * cats.length)];
+        }
+
+        if (currentCat === 'addition') currentQuestions.push(generateAddition(cat==='mixed_topics'? randomInt(2,3) : selectedDigits, cat==='mixed_topics'? 'mixed' : selectedRegroup));
+        else if (currentCat === 'subtraction') currentQuestions.push(generateSubtraction(cat==='mixed_topics'? randomInt(2,3) : selectedDigits, cat==='mixed_topics'? 'mixed' : selectedRegroup));
+        else if (currentCat === 'multiplication') currentQuestions.push(generateMultiplication());
+        else if (currentCat === 'division') currentQuestions.push(generateDivision());
+        else if (currentCat === 'integers') currentQuestions.push(generateInteger(cat==='mixed_topics'? 'all' : opSub, cat==='mixed_topics'? 'mixed' : selectedIntSign));
+        else if (currentCat === 'exponents') currentQuestions.push(generateExponent());
+        else if (currentCat === 'decimals') currentQuestions.push(generateDecimal(cat==='mixed_topics'? 'all' : opSub));
+        else if (currentCat === 'fractions') currentQuestions.push(generateFraction(cat==='mixed_topics'? 'all' : opSub));
       }
     }
 
@@ -634,16 +777,19 @@
       const inp = document.getElementById('answerInput');
       if (inp.disabled) return; // Prevent double submit
       
-      const userAns = inp.value.trim().replace(/\s/g, ''); // strip spaces
+      let userAns = inp.value.trim().replace(/\s/g, ''); // strip spaces
       if (!userAns && userAns !== "0") return;
+
+      // Allow users to type '+5' instead of just '5'
+      if (userAns.startsWith('+')) userAns = userAns.substring(1);
 
       const q = currentQuestions[currentQIndex];
       let isCorrect = false;
 
       // Handle fractions equivalence (basic safety check)
-      if (quizSettings.category === 'fractions' && userAns.includes('/')) {
+      if (q.text.includes('/') && userAns.includes('/')) {
          isCorrect = (userAns === q.answer);
-      } else if (quizSettings.category === 'decimals') {
+      } else if (q.text.includes('.')) {
          // Allow things like .5 vs 0.5
          isCorrect = parseFloat(userAns) === parseFloat(q.answer);
       } else {
@@ -705,8 +851,12 @@
 
       // Format details for saving
       let details = "";
-      if (quizSettings.category === 'addition' || quizSettings.category === 'subtraction') {
+      if (quizSettings.category === 'mixed_topics') {
+        details = "Combination of all operations";
+      } else if (quizSettings.category === 'addition' || quizSettings.category === 'subtraction') {
         details = `${quizSettings.digits} Digits, ${quizSettings.regroup} regroup, ${quizSettings.layout}`;
+      } else if (quizSettings.category === 'integers') {
+        details = `Op: ${quizSettings.op}, Signs: ${quizSettings.intSign}, ${quizSettings.layout}`;
       } else if (quizSettings.category === 'decimals') {
         details = `Op: ${quizSettings.op}, ${quizSettings.layout}`;
       } else if (quizSettings.category === 'fractions') {
