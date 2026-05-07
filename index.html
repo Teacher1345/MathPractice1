@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Math Practice Quiz</title>
+  
+  <!-- Preconnect to external servers for faster loading -->
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://www.gstatic.com">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -285,10 +291,6 @@
 
   <!-- FIREBASE & APP LOGIC -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
     // 1. ENVIRONMENT / ADAPTER SETUP
     const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
@@ -299,36 +301,57 @@
     let isAppsScriptEnabled = false;
     let unsubscribeAdminListener = null;
 
+    // Higher-scoped variables to hold dynamically loaded Firebase functions
+    let collection, addDoc, updateDoc, doc, onSnapshot, serverTimestamp;
+
     if (window.google && google.script && google.script.run) {
       isAppsScriptEnabled = true;
     }
 
+    // Dynamic Imports: We only load heavy Firebase SDKs if explicitly needed (e.g., inside Canvas).
+    // In Google Apps Script, this skips downloading ~500kb of external scripts!
     if (firebaseConfigStr) {
-      try {
-        const firebaseConfig = JSON.parse(firebaseConfigStr);
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-        isFirebaseEnabled = true;
+      Promise.all([
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"),
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+      ]).then(([firebaseApp, firebaseAuth, firebaseFirestore]) => {
+        try {
+          const firebaseConfig = JSON.parse(firebaseConfigStr);
+          app = firebaseApp.initializeApp(firebaseConfig);
+          auth = firebaseAuth.getAuth(app);
+          db = firebaseFirestore.getFirestore(app);
 
-        const initAuth = async () => {
-          if (initialAuthToken) {
-            await signInWithCustomToken(auth, initialAuthToken);
-          } else {
-            await signInAnonymously(auth);
-          }
-        };
-        initAuth();
+          // Map functions for our global scope
+          collection = firebaseFirestore.collection;
+          addDoc = firebaseFirestore.addDoc;
+          updateDoc = firebaseFirestore.updateDoc;
+          doc = firebaseFirestore.doc;
+          onSnapshot = firebaseFirestore.onSnapshot;
+          serverTimestamp = firebaseFirestore.serverTimestamp;
 
-        onAuthStateChanged(auth, (u) => {
-          user = u;
-          if (u) hideLoading();
-        });
-      } catch (e) {
-        console.error("Firebase init failed:", e);
-        hideLoading();
-      }
+          isFirebaseEnabled = true;
+
+          const initAuth = async () => {
+            if (initialAuthToken) {
+              await firebaseAuth.signInWithCustomToken(auth, initialAuthToken);
+            } else {
+              await firebaseAuth.signInAnonymously(auth);
+            }
+          };
+          initAuth();
+
+          firebaseAuth.onAuthStateChanged(auth, (u) => {
+            user = u;
+            if (u) hideLoading();
+          });
+        } catch (e) {
+          console.error("Firebase init failed:", e);
+          hideLoading();
+        }
+      });
     } else {
+      // In Apps Script, skip the wait entirely and render UI immediately.
       hideLoading();
     }
 
