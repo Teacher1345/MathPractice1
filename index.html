@@ -23,1016 +23,899 @@
 </head>
 <body class="bg-slate-100 min-h-screen font-sans text-slate-800 overflow-x-hidden selection:bg-indigo-100 selection:text-indigo-900">
 
-  <!-- ================= SETUP SCREEN ================= -->
-  <div id="setup-screen" class="min-h-screen flex items-center justify-center p-4 sm:p-6 relative transition-opacity duration-300">
-    <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 max-w-xl w-full mx-auto relative border border-slate-100">
-      
-      <div class="text-center mb-8">
-        <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
-          <i class="fa-solid fa-calculator text-3xl"></i>
-        </div>
-        <h1 class="text-3xl font-bold text-slate-800">Math Practice</h1>
-        <p class="text-slate-500 mt-2">Configure your quiz and start learning</p>
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-indigo-600 font-bold text-xl cursor-pointer" onclick="showView('setup-view')">
+        <i class="fa-solid fa-calculator"></i>
+        <span>MathMaster</span>
       </div>
-
-      <div class="space-y-5">
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1">Your Name</label>
-          <input type="text" id="userName" placeholder="Enter your name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all placeholder-slate-400">
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1">Number of Questions</label>
-          <input type="number" id="numQuestions" value="10" min="1" max="100" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1">Topic</label>
-          <select id="categorySelect" onchange="toggleSubOptions()" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all bg-white appearance-none cursor-pointer">
-            <option value="addition">Addition</option>
-            <option value="subtraction">Subtraction</option>
-            <option value="multiplication">Multiplication</option>
-            <option value="division">Division</option>
-            <option value="integers">Integers (Positives & Negatives)</option>
-            <option value="decimals">Decimals</option>
-            <option value="fractions">Fractions</option>
-            <option value="exponents">Exponents</option>
-            <option value="mixed_topics">Mixed Topics</option>
-          </select>
-        </div>
-
-        <!-- Dynamic Sub-Options Container -->
-        <div id="subOptionsContainer" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-          
-          <!-- Layout Option -->
-          <div id="layoutOption" class="hidden">
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Problem Layout</label>
-            <div class="flex gap-2">
-              <button class="flex-1 py-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium transition-colors layout-btn active" data-val="horizontal" onclick="selectLayout(this)">Horizontal</button>
-              <button class="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors layout-btn" data-val="vertical" onclick="selectLayout(this)">Vertical</button>
-            </div>
-          </div>
-
-          <!-- Digits Option (For Add/Sub) -->
-          <div id="digitsOption" class="hidden">
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Number of Digits</label>
-            <div class="flex gap-2">
-              <button class="flex-1 py-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium transition-colors digit-btn active" data-val="2" onclick="selectDigit(this)">2 Digits</button>
-              <button class="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors digit-btn" data-val="3" onclick="selectDigit(this)">3 Digits</button>
-              <button class="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors digit-btn" data-val="4" onclick="selectDigit(this)">4 Digits</button>
-            </div>
-          </div>
-
-          <!-- Regrouping Option (For Add/Sub) -->
-          <div id="regroupingOption" class="hidden">
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Regrouping (Borrowing/Carrying)</label>
-            <div class="flex gap-2">
-              <button class="flex-1 py-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium transition-colors regroup-btn active" data-val="mixed" onclick="selectRegroup(this)">Mixed</button>
-              <button class="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors regroup-btn" data-val="without" onclick="selectRegroup(this)">Without</button>
-              <button class="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors regroup-btn" data-val="with" onclick="selectRegroup(this)">With</button>
-            </div>
-          </div>
-
-          <!-- Integer Signs Option -->
-          <div id="integerSignOption" class="hidden">
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Integer Signs</label>
-            <div class="flex flex-wrap gap-2">
-              <button class="flex-1 min-w-[80px] py-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium transition-colors intsign-btn active" data-val="mixed" onclick="selectIntSign(this)">Mixed</button>
-              <button class="flex-1 min-w-[80px] py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors intsign-btn" data-val="both_pos" onclick="selectIntSign(this)">Pos (+)</button>
-              <button class="flex-1 min-w-[80px] py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors intsign-btn" data-val="both_neg" onclick="selectIntSign(this)">Neg (-)</button>
-              <button class="flex-1 min-w-[80px] py-2 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition-colors intsign-btn" data-val="diff_signs" onclick="selectIntSign(this)">Pos & Neg</button>
-            </div>
-          </div>
-
-          <!-- Operation Option (For Decimals/Fractions/Integers) -->
-          <div id="operationOption" class="hidden">
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Operation</label>
-            <select id="opSelect" class="w-full px-4 py-2 rounded-lg border border-slate-200 outline-none bg-white">
-              <option value="all">All Operations (+, -, ×, ÷)</option>
-              <option value="addsub">Addition & Subtraction</option>
-              <option value="multdiv">Multiplication & Division</option>
-              <option value="add">Addition Only</option>
-              <option value="sub">Subtraction Only</option>
-              <option value="mult">Multiplication Only</option>
-              <option value="div">Division Only</option>
-            </select>
-          </div>
-
-        </div>
-
-      </div>
-
-      <button onclick="startQuiz()" class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98] flex justify-center items-center gap-2">
-        <span>Start Quiz</span>
-        <i class="fa-solid fa-arrow-right"></i>
+      <button onclick="showView('admin-login-view')" class="text-slate-500 hover:text-indigo-600 text-sm font-medium transition-colors flex items-center gap-2">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="hidden sm:inline">Admin</span>
       </button>
+    </div>
+  </header>
 
-      <div class="mt-6 text-center">
-        <button onclick="showDashboard()" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
-          <i class="fa-solid fa-chart-line mr-1"></i> View Past Results
-        </button>
+  <main class="max-w-4xl mx-auto px-4 py-8 relative">
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="absolute inset-0 bg-slate-100 z-50 flex flex-col items-center justify-center min-h-[50vh]">
+      <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+      <p class="mt-4 text-slate-500 font-medium">Initializing system...</p>
+    </div>
+
+    <!-- 1. Setup View -->
+    <div id="setup-view" class="view-section hidden-view fade-enter fade-enter-active max-w-md mx-auto">
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+        <div class="bg-indigo-600 p-6 text-center">
+          <h2 class="text-2xl font-bold text-white mb-2">Ready to Practice?</h2>
+          <p class="text-indigo-100 text-sm">Enter your details and customize your topic.</p>
+        </div>
+        <div class="p-6 space-y-5">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1" for="studentName">Student Name</label>
+            <input type="text" id="studentName" placeholder="e.g. Alex Johnson" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1" for="categorySelect">Topic</label>
+            <div class="relative">
+              <select id="categorySelect" onchange="toggleTopicSettings()" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none transition-all font-medium">
+                <optgroup label="Whole Numbers">
+                  <option value="Addition">Addition</option>
+                  <option value="Subtraction">Subtraction</option>
+                  <option value="Multiplication">Multiplication</option>
+                  <option value="Division">Division</option>
+                </optgroup>
+                <optgroup label="Integers (Negative & Positive)">
+                  <option value="Integer Addition">Integer Addition</option>
+                  <option value="Integer Subtraction">Integer Subtraction</option>
+                  <option value="Integer Multiplication">Integer Multiplication</option>
+                  <option value="Integer Division">Integer Division</option>
+                </optgroup>
+                <optgroup label="Advanced Topics">
+                  <option value="Fractions">Fractions</option>
+                  <option value="Decimals">Decimals</option>
+                  <option value="Exponents">Exponents</option>
+                  <option value="Laws of Exponents">Laws of Exponents</option>
+                  <option value="Percentage">Percentage (Rate, Whole, %)</option>
+                </optgroup>
+              </select>
+              <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Dynamic Settings for Whole Number Addition/Subtraction -->
+          <div id="wholeNumberSettings" class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1" for="digitSelect">Number of Digits</label>
+              <select id="digitSelect" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                <option value="1">1 Digit</option>
+                <option value="2" selected>2 Digits</option>
+                <option value="3">3 Digits</option>
+                <option value="4">4 Digits</option>
+                <option value="5">5 Digits</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1" for="regroupingSelect">Regrouping (Borrowing/Carrying)</label>
+              <select id="regroupingSelect" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                <option value="mixed">Mixed (Random)</option>
+                <option value="without">Without Regrouping</option>
+                <option value="with">With Regrouping</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1" for="questionsSelect">Total Questions</label>
+            <div class="relative">
+              <select id="questionsSelect" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none transition-all font-medium">
+                <option value="5">5 Questions</option>
+                <option value="10" selected>10 Questions</option>
+                <option value="20">20 Questions</option>
+              </select>
+              <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+            </div>
+          </div>
+          <button onclick="startQuiz()" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]">
+            Start Quiz <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- ================= QUIZ SCREEN ================= -->
-  <div id="quiz-screen" class="min-h-screen hidden-view flex-col p-4 sm:p-6 transition-opacity duration-300">
-    <div class="max-w-2xl w-full mx-auto flex-1 flex flex-col justify-center">
-      
-      <!-- Top Bar -->
-      <div class="flex justify-between items-center mb-8">
-        <button onclick="endQuizEarly()" class="text-slate-400 hover:text-slate-600 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-slate-200">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-        <div class="bg-white px-5 py-2 rounded-full shadow-sm border border-slate-200 font-bold text-slate-700 tracking-wide">
-          Question <span id="qCurrent" class="text-indigo-600">1</span> / <span id="qTotal">10</span>
+    <!-- 2. Quiz View -->
+    <div id="quiz-view" class="view-section hidden-view fade-enter fade-enter-active max-w-lg mx-auto">
+      <!-- Progress Header -->
+      <div class="flex justify-between items-end mb-4 px-2">
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider" id="quizCategoryLabel">Category</p>
+          <p class="text-lg font-bold text-slate-800">Question <span id="currentQNum">1</span><span class="text-slate-400 text-sm font-normal"> / <span id="totalQNum">10</span></span></p>
         </div>
-        <div class="w-10"></div> <!-- Balancer -->
+        <div class="text-right">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Score</p>
+          <p class="text-lg font-bold text-indigo-600"><span id="currentScore">0</span></p>
+        </div>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="w-full bg-slate-200 rounded-full h-2.5 mb-8 overflow-hidden">
+        <div id="progressBar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 10%"></div>
       </div>
 
       <!-- Question Card -->
-      <div class="bg-white rounded-3xl shadow-xl p-8 sm:p-12 mb-6 relative overflow-hidden border border-slate-100">
-        <!-- Progress Bar -->
-        <div class="absolute top-0 left-0 h-1.5 bg-indigo-100 w-full">
-          <div id="progressBar" class="h-full bg-indigo-500 transition-all duration-300 w-0"></div>
-        </div>
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 text-center mb-6">
+        <h3 id="questionText" class="text-3xl sm:text-4xl font-bold text-slate-800 mb-8 py-4">--</h3>
+        
+        <form id="answerForm" onsubmit="submitAnswer(event)" class="relative max-w-xs mx-auto">
+          <!-- Text input to handle fractions like 3/4 and negatives like -5 -->
+          <input type="text" id="answerInput" autocomplete="off" class="w-full text-center text-3xl font-bold px-4 py-4 rounded-xl border-2 border-slate-200 focus:border-indigo-600 focus:outline-none transition-colors" placeholder="?">
+          <p class="text-xs text-slate-400 mt-2">You can use decimals (1.5) or fractions (3/2) or negatives (-5).</p>
+          <button type="submit" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]">
+            Submit Answer
+          </button>
+        </form>
 
-        <div class="text-center mt-4">
-          <p id="questionHint" class="text-sm text-slate-400 font-medium uppercase tracking-wider mb-4 h-5"></p>
-          <div id="questionText" class="text-5xl sm:text-7xl font-bold text-slate-800 tracking-tight font-mono mb-8 select-none">
-            2 + 2 = ?
+        <div id="feedbackBox" class="mt-6 p-4 rounded-xl hidden">
+          <p id="feedbackText" class="font-bold text-lg flex items-center justify-center gap-2"></p>
+          <p id="correctAnswerHint" class="text-sm mt-1 opacity-90"></p>
+          <button id="nextBtn" onclick="nextQuestion()" class="mt-4 px-6 py-2 bg-white/20 hover:bg-white/30 rounded-lg font-semibold transition-colors w-full hidden">
+            Next Question <i class="fa-solid fa-arrow-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="text-center">
+        <button onclick="quitQuiz()" class="text-slate-400 hover:text-rose-500 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-person-running mr-1"></i> Save & Exit Early
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. Result View -->
+    <div id="result-view" class="view-section hidden-view fade-enter fade-enter-active max-w-md mx-auto">
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 text-center">
+        <div class="bg-emerald-500 p-8">
+          <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <i class="fa-solid fa-trophy text-4xl text-yellow-400"></i>
           </div>
-          
-          <form id="answerForm" onsubmit="submitAnswer(event)" class="max-w-xs mx-auto relative">
-            <input type="text" id="answerInput" autocomplete="off" class="w-full text-center text-3xl sm:text-4xl font-bold px-4 py-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-slate-700 bg-slate-50 placeholder-slate-300" placeholder="?">
-            <button type="submit" class="absolute right-2 top-2 bottom-2 aspect-square bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors flex items-center justify-center shadow-md">
-              <i class="fa-solid fa-check"></i>
-            </button>
-          </form>
+          <h2 class="text-3xl font-bold text-white mb-1">Quiz Complete!</h2>
+          <p class="text-emerald-100">Great job, <span id="resultName">Student</span>!</p>
         </div>
-      </div>
-
-      <!-- Feedback Area -->
-      <div id="feedbackArea" class="h-16 flex items-center justify-center text-xl font-bold rounded-2xl transition-all duration-300 opacity-0 transform translate-y-4">
-        <!-- Injected via JS -->
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ================= RESULTS SCREEN ================= -->
-  <div id="results-screen" class="min-h-screen hidden-view flex-col p-4 sm:p-6 transition-opacity duration-300">
-    <div class="max-w-xl w-full mx-auto my-auto bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-slate-100 text-center">
-      
-      <div id="resultIcon" class="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-4xl mb-6 shadow-inner">
-        <!-- Icon injected via JS -->
-      </div>
-      
-      <h2 class="text-3xl font-bold text-slate-800 mb-2">Quiz Complete!</h2>
-      <p id="resultMessage" class="text-slate-500 mb-8">Great effort, <span id="resName"></span>!</p>
-      
-      <div class="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-100">
-        <p class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-1">Your Score</p>
-        <div class="text-5xl font-black text-slate-800 mb-2">
-          <span id="scoreFinal" class="text-indigo-600">0</span> <span class="text-2xl text-slate-400">/ <span id="scoreTotal">0</span></span>
-        </div>
-        <p id="scorePercent" class="font-bold text-lg text-slate-600">0%</p>
-      </div>
-
-      <div class="flex flex-col sm:flex-row gap-3">
-        <button onclick="showSetup()" class="flex-1 bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 font-bold py-3 px-6 rounded-xl transition-all">
-          <i class="fa-solid fa-gear mr-2"></i> Setup New
-        </button>
-        <button onclick="startQuiz()" class="flex-1 bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 font-bold py-3 px-6 rounded-xl transition-all">
-          <i class="fa-solid fa-rotate-right mr-2"></i> Play Again
-        </button>
-      </div>
-      
-      <div class="mt-4">
-        <button onclick="showDashboard()" class="w-full bg-slate-800 text-white hover:bg-slate-900 font-bold py-3 px-6 rounded-xl transition-all">
-          <i class="fa-solid fa-list mr-2"></i> View Dashboard
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= DASHBOARD SCREEN ================= -->
-  <div id="dashboard-screen" class="min-h-screen hidden-view flex-col p-4 sm:p-6 transition-opacity duration-300">
-    <div class="max-w-4xl w-full mx-auto flex-1 flex flex-col">
-      
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h2 class="text-2xl font-bold text-slate-800">Session Results</h2>
-          <p class="text-slate-500 text-sm">Your scores for this session are shown below.</p>
-        </div>
-        <button onclick="showSetup()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl font-medium shadow-sm transition-all">
-          <i class="fa-solid fa-arrow-left mr-2"></i> Back
-        </button>
-      </div>
-
-      <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex-1 flex flex-col">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[600px]">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-sm uppercase tracking-wider border-b border-slate-200">
-                <th class="p-4 font-semibold w-1/4">Date & Time</th>
-                <th class="p-4 font-semibold">Name</th>
-                <th class="p-4 font-semibold">Category</th>
-                <th class="p-4 font-semibold text-center">Score</th>
-              </tr>
-            </thead>
-            <tbody id="dashboardBody" class="divide-y divide-slate-100">
-              <!-- Rows injected via JS -->
-            </tbody>
-          </table>
-          <div id="emptyDashboard" class="p-12 text-center text-slate-500 hidden">
-            <i class="fa-solid fa-inbox text-4xl mb-3 text-slate-300"></i>
-            <p>No results yet for this session.</p>
-          </div>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-
-  <!-- Message Box Modal (replaces alert) -->
-  <div id="messageModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
-    <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 transform scale-95 transition-transform" id="messageModalContent">
-      <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center mx-auto mb-4 text-xl" id="messageIcon">
-          <i class="fa-solid fa-circle-info"></i>
-        </div>
-        <h3 class="text-lg font-bold text-slate-800" id="messageTitle">Notice</h3>
-        <p class="text-slate-600 mt-2 text-sm" id="messageText">Message goes here.</p>
-      </div>
-      <button onclick="closeMessage()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors">
-        Got it
-      </button>
-    </div>
-  </div>
-
-  <script>
-    // --- STATE ---
-    let currentQuestions = [];
-    let currentQIndex = 0;
-    let score = 0;
-    let quizSettings = {};
-    
-    // In-memory array to hold results for the session
-    let sessionResults = [];
-
-    // --- SETUP UI LOGIC ---
-    let selectedDigits = 2;
-    let selectedRegroup = 'mixed';
-    let selectedLayout = 'horizontal';
-    let selectedIntSign = 'mixed';
-
-    function init() {
-      toggleSubOptions(); // Set initial state
-      
-      // Focus name input on load
-      setTimeout(() => document.getElementById('userName').focus(), 100);
-    }
-
-    function toggleSubOptions() {
-      const cat = document.getElementById('categorySelect').value;
-      const opts = document.getElementById('subOptionsContainer');
-      const divDigits = document.getElementById('digitsOption');
-      const divRegroup = document.getElementById('regroupingOption');
-      const divOp = document.getElementById('operationOption');
-      const divLayout = document.getElementById('layoutOption');
-      const divIntSign = document.getElementById('integerSignOption');
-
-      // Hide all first
-      divDigits.classList.add('hidden');
-      divRegroup.classList.add('hidden');
-      divOp.classList.add('hidden');
-      divLayout.classList.add('hidden');
-      divIntSign.classList.add('hidden');
-      
-      let hasVisibleOptions = false;
-
-      if (cat === 'addition' || cat === 'subtraction') {
-        divDigits.classList.remove('hidden');
-        divRegroup.classList.remove('hidden');
-        divLayout.classList.remove('hidden');
-        hasVisibleOptions = true;
-      } else if (cat === 'multiplication' || cat === 'division') {
-        divLayout.classList.remove('hidden');
-        hasVisibleOptions = true;
-      } else if (cat === 'decimals') {
-        divOp.classList.remove('hidden');
-        divLayout.classList.remove('hidden');
-        hasVisibleOptions = true;
-      } else if (cat === 'integers') {
-        divOp.classList.remove('hidden');
-        divLayout.classList.remove('hidden');
-        divIntSign.classList.remove('hidden');
-        hasVisibleOptions = true;
-      } else if (cat === 'fractions') {
-        divOp.classList.remove('hidden');
-        hasVisibleOptions = true;
-      }
-
-      if (hasVisibleOptions) {
-        opts.classList.remove('hidden');
-      } else {
-        opts.classList.add('hidden');
-      }
-    }
-
-    function selectDigit(btn) {
-      document.querySelectorAll('.digit-btn').forEach(b => {
-        b.classList.remove('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
-        b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
-      });
-      btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
-      btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
-      selectedDigits = parseInt(btn.getAttribute('data-val'));
-    }
-
-    function selectRegroup(btn) {
-      document.querySelectorAll('.regroup-btn').forEach(b => {
-        b.classList.remove('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
-        b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
-      });
-      btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
-      btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
-      selectedRegroup = btn.getAttribute('data-val');
-    }
-
-    function selectLayout(btn) {
-      document.querySelectorAll('.layout-btn').forEach(b => {
-        b.classList.remove('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
-        b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
-      });
-      btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
-      btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
-      selectedLayout = btn.getAttribute('data-val');
-    }
-
-    function selectIntSign(btn) {
-      document.querySelectorAll('.intsign-btn').forEach(b => {
-        b.classList.remove('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
-        b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
-      });
-      btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
-      btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
-      selectedIntSign = btn.getAttribute('data-val');
-    }
-
-    // --- MATH GENERATORS ---
-    
-    function randomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    // Resolves random selections like "All Operations" into specific operations
-    function resolveOp(opType) {
-      if (opType === 'addsub') return Math.random() > 0.5 ? 'add' : 'sub';
-      if (opType === 'multdiv') return Math.random() > 0.5 ? 'mult' : 'div';
-      if (opType === 'all') {
-        const ops = ['add', 'sub', 'mult', 'div'];
-        return ops[Math.floor(Math.random() * ops.length)];
-      }
-      return opType;
-    }
-
-    // Generate Add/Sub without Regrouping helper
-    function generateNoRegroup(digits, isSub) {
-      let aStr = '', bStr = '';
-      for(let i=0; i<digits; i++) {
-        let isLead = (i === 0);
-        let aDigit = randomInt(isLead ? 1 : 0, 9);
-        let bDigit;
-        if (isSub) {
-          bDigit = randomInt(isLead ? 1 : 0, aDigit); // b <= a
-        } else {
-          bDigit = randomInt(isLead ? 1 : 0, 9 - aDigit); // a + b <= 9
-        }
-        aStr += aDigit;
-        bStr += bDigit;
-      }
-      return { a: parseInt(aStr), b: parseInt(bStr) };
-    }
-
-    // Check if an addition requires regrouping
-    function hasRegroupingAdd(a, b) {
-      let aStr = a.toString(), bStr = b.toString();
-      let maxLen = Math.max(aStr.length, bStr.length);
-      aStr = aStr.padStart(maxLen, '0');
-      bStr = bStr.padStart(maxLen, '0');
-      
-      let carry = 0;
-      for (let i = maxLen - 1; i >= 0; i--) {
-        let sum = parseInt(aStr[i]) + parseInt(bStr[i]) + carry;
-        if (sum > 9) return true;
-        carry = sum > 9 ? 1 : 0;
-      }
-      return false;
-    }
-
-    // Check if subtraction requires regrouping
-    function hasRegroupingSub(a, b) {
-      if (b > a) return false;
-      let aStr = a.toString(), bStr = b.toString();
-      bStr = bStr.padStart(aStr.length, '0');
-      
-      for (let i = 0; i < aStr.length; i++) {
-        if (parseInt(aStr[i]) < parseInt(bStr[i])) return true;
-      }
-      return false;
-    }
-
-    function generateAddition(digits, regroup) {
-      let a, b;
-      let min = Math.pow(10, digits - 1);
-      let max = Math.pow(10, digits) - 1;
-
-      if (regroup === 'without') {
-        let pair = generateNoRegroup(digits, false);
-        a = pair.a; b = pair.b;
-      } else if (regroup === 'with') {
-        do {
-          a = randomInt(min, max);
-          b = randomInt(min, max);
-        } while (!hasRegroupingAdd(a, b));
-      } else {
-        // Mixed
-        a = randomInt(min, max);
-        b = randomInt(min, max);
-      }
-      
-      return {
-        a: a, b: b, op: '+',
-        text: `${a} + ${b}`,
-        answer: (a + b).toString(),
-        hint: ''
-      };
-    }
-
-    function generateSubtraction(digits, regroup) {
-      let a, b;
-      let min = Math.pow(10, digits - 1);
-      let max = Math.pow(10, digits) - 1;
-
-      if (regroup === 'without') {
-        let pair = generateNoRegroup(digits, true);
-        a = pair.a; b = pair.b;
-      } else if (regroup === 'with') {
-        do {
-          a = randomInt(min, max);
-          b = randomInt(min, max);
-          if (a < b) { let t = a; a = b; b = t; } // ensure a > b
-        } while (!hasRegroupingSub(a, b) || a === b);
-      } else {
-        a = randomInt(min, max);
-        b = randomInt(min, max);
-        if (a < b) { let t = a; a = b; b = t; }
-      }
-      
-      return {
-        a: a, b: b, op: '-',
-        text: `${a} - ${b}`,
-        answer: (a - b).toString(),
-        hint: ''
-      };
-    }
-
-    function generateMultiplication() {
-      let a = randomInt(2, 12);
-      let b = randomInt(2, 12);
-      return { a: a, b: b, op: '×', text: `${a} × ${b}`, answer: (a * b).toString(), hint: '' };
-    }
-
-    function generateDivision() {
-      let b = randomInt(2, 12);
-      let ans = randomInt(2, 12);
-      let a = b * ans;
-      return { a: a, b: b, op: '÷', text: `${a} ÷ ${b}`, answer: ans.toString(), hint: '' };
-    }
-    
-    function generateInteger(opType, signMode) {
-      let op = resolveOp(opType);
-      let a, b, ans, sign;
-      
-      // Helper for explicit signs
-      function getSignedInt(mode) {
-        if (mode === 'pos') return randomInt(1, 15);
-        if (mode === 'neg') return randomInt(-15, -1);
-        let val = randomInt(-15, 15);
-        return val === 0 ? randomInt(1, 15) : val; // avoid zeros for clearer sign logic
-      }
-
-      let modeA = 'mixed', modeB = 'mixed';
-      if (signMode === 'both_pos') { modeA = 'pos'; modeB = 'pos'; }
-      else if (signMode === 'both_neg') { modeA = 'neg'; modeB = 'neg'; }
-      else if (signMode === 'diff_signs') {
-        if (Math.random() > 0.5) { modeA = 'pos'; modeB = 'neg'; }
-        else { modeA = 'neg'; modeB = 'pos'; }
-      }
-      
-      if (op === 'div') {
-        b = getSignedInt(modeB);
-        let tempAns = getSignedInt(modeA);
-        a = b * tempAns;
-        ans = tempAns;
-        sign = '÷';
-      } else if (op === 'mult') {
-        a = getSignedInt(modeA);
-        b = getSignedInt(modeB);
-        // keep times tables somewhat bounded for mental math
-        if (a > 12) a = randomInt(1, 12);
-        if (a < -12) a = randomInt(-12, -1);
-        if (b > 12) b = randomInt(1, 12);
-        if (b < -12) b = randomInt(-12, -1);
-        ans = a * b;
-        sign = '×';
-      } else {
-        a = getSignedInt(modeA);
-        b = getSignedInt(modeB);
-        ans = op === 'add' ? a + b : a - b;
-        sign = op === 'add' ? '+' : '-';
-      }
-
-      // Format with explicit + signs if user isolated the signs
-      let formatInt = (num) => (num > 0 && signMode !== 'mixed') ? `+${num}` : `${num}`;
-      let aStr = formatInt(a);
-      let bStr = b < 0 ? `(${formatInt(b)})` : formatInt(b);
-      let textStr = `${aStr} ${sign} ${bStr}`;
-      
-      return {
-        a: aStr, b: bStr, op: sign,
-        text: textStr,
-        answer: ans.toString(),
-        hint: 'Watch your positive & negative rules! (e.g. -- is +)'
-      };
-    }
-
-    function generateExponent() {
-      let type = randomInt(1, 3);
-      let base, exp, ans;
-      if (type === 1) {
-        // Squares
-        base = randomInt(2, 12);
-        exp = 2;
-      } else if (type === 2) {
-        // Cubes
-        base = randomInt(2, 5);
-        exp = 3;
-      } else {
-        // Power of 2
-        base = 2;
-        exp = randomInt(4, 6);
-      }
-      ans = Math.pow(base, exp);
-      return { text: `${base}<sup>${exp}</sup>`, answer: ans.toString(), hint: '' };
-    }
-
-    function generateDecimal(opType) {
-      let op = resolveOp(opType);
-      let a, b, ans, textStr, sign;
-      
-      if (op === 'add' || op === 'sub') {
-        let places1 = randomInt(1, 2);
-        let places2 = randomInt(1, 2);
-        
-        a = parseFloat((Math.random() * 50 + 1).toFixed(places1));
-        b = parseFloat((Math.random() * 50 + 1).toFixed(places2));
-        
-        if (op === 'sub' && a < b) { let t = a; a = b; b = t; }
-        
-        if (op === 'add') {
-          ans = (a + b).toFixed(Math.max(places1, places2));
-        } else {
-          ans = (a - b).toFixed(Math.max(places1, places2));
-        }
-        sign = op === 'add' ? '+' : '-';
-      } else if (op === 'mult') {
-        a = parseFloat((Math.random() * 10 + 0.1).toFixed(1));
-        b = parseFloat((Math.random() * 10 + 0.1).toFixed(1));
-        ans = (a * b).toFixed(2);
-        sign = '×';
-      } else if (op === 'div') {
-        let expectedAns = parseFloat((Math.random() * 20 + 0.1).toFixed(1));
-        b = parseFloat((Math.random() * 9 + 0.1).toFixed(1)); 
-        a = Number((expectedAns * b).toFixed(2));
-        ans = expectedAns.toFixed(1);
-        sign = '÷';
-      }
-      
-      textStr = `${a} ${sign} ${b}`;
-      ans = Number(ans).toString(); // Safely strip floating zero fluff
-      
-      return { a: a, b: b, op: sign, text: textStr, answer: ans, hint: 'Use a decimal point (.)' };
-    }
-
-    function generateFraction(opType) {
-      let op = resolveOp(opType);
-      let denoms = [2, 3, 4, 5, 6, 8, 10];
-      
-      let n1, d1, n2, d2, ansNum, ansDenom, sign;
-      
-      if (op === 'add' || op === 'sub') {
-        d1 = denoms[randomInt(0, denoms.length - 1)];
-        d2 = d1; // Keeping same denom for foundational practice
-        n1 = randomInt(1, d1 - 1);
-        n2 = randomInt(1, d2 - 1);
-        
-        if (op === 'sub' && n1 < n2) { let t = n1; n1 = n2; n2 = t; }
-        
-        ansNum = op === 'add' ? (n1 + n2) : (n1 - n2);
-        ansDenom = d1;
-        sign = op === 'add' ? '+' : '-';
-      } else {
-        d1 = denoms[randomInt(0, denoms.length - 1)];
-        d2 = denoms[randomInt(0, denoms.length - 1)];
-        n1 = randomInt(1, d1 - 1);
-        n2 = randomInt(1, d2 - 1);
-        
-        if (op === 'mult') {
-          ansNum = n1 * n2;
-          ansDenom = d1 * d2;
-          sign = '×';
-        } else { // div
-          ansNum = n1 * d2;
-          ansDenom = d1 * n2;
-          sign = '÷';
-        }
-      }
-      
-      // Simplification logic
-      function gcd(a, b) {
-        a = Math.abs(a);
-        b = Math.abs(b);
-        return b === 0 ? a : gcd(b, a % b);
-      }
-      
-      let divisor = gcd(ansNum, ansDenom);
-      let simpNum = ansNum / divisor;
-      let simpDenom = ansDenom / divisor;
-      
-      // Keep denominator positive visually
-      if (simpDenom < 0) {
-        simpNum = -simpNum;
-        simpDenom = -simpDenom;
-      }
-      
-      let ansStr = simpDenom === 1 ? `${simpNum}` : `${simpNum}/${simpDenom}`;
-      if (ansNum === 0) ansStr = "0";
-
-      // Formats the output as a true vertical fraction inline
-      function getFractionHtml(n, d) {
-        return `<span class="inline-flex flex-col items-center justify-center align-middle mx-1 text-[0.8em] leading-none">
-          <span class="border-b-[4px] border-slate-800 w-full text-center pb-1 px-2">${n}</span>
-          <span class="pt-1 px-2">${d}</span>
-        </span>`;
-      }
-
-      return {
-        text: `${getFractionHtml(n1, d1)} <span class="align-middle mx-2">${sign}</span> ${getFractionHtml(n2, d2)}`,
-        answer: ansStr,
-        hint: 'Format: a/b (Simplify your answer)'
-      };
-    }
-
-    function buildQuiz() {
-      const cat = document.getElementById('categorySelect').value;
-      const total = parseInt(document.getElementById('numQuestions').value) || 10;
-      const opSub = document.getElementById('opSelect').value;
-      
-      quizSettings = { category: cat, total: total, digits: selectedDigits, regroup: selectedRegroup, op: opSub, layout: selectedLayout, intSign: selectedIntSign };
-      currentQuestions = [];
-
-      for(let i=0; i<total; i++) {
-        let currentCat = cat;
-        if (cat === 'mixed_topics') {
-          const cats = ['addition', 'subtraction', 'multiplication', 'division', 'integers', 'decimals', 'fractions', 'exponents'];
-          currentCat = cats[Math.floor(Math.random() * cats.length)];
-        }
-
-        if (currentCat === 'addition') currentQuestions.push(generateAddition(cat==='mixed_topics'? randomInt(2,3) : selectedDigits, cat==='mixed_topics'? 'mixed' : selectedRegroup));
-        else if (currentCat === 'subtraction') currentQuestions.push(generateSubtraction(cat==='mixed_topics'? randomInt(2,3) : selectedDigits, cat==='mixed_topics'? 'mixed' : selectedRegroup));
-        else if (currentCat === 'multiplication') currentQuestions.push(generateMultiplication());
-        else if (currentCat === 'division') currentQuestions.push(generateDivision());
-        else if (currentCat === 'integers') currentQuestions.push(generateInteger(cat==='mixed_topics'? 'all' : opSub, cat==='mixed_topics'? 'mixed' : selectedIntSign));
-        else if (currentCat === 'exponents') currentQuestions.push(generateExponent());
-        else if (currentCat === 'decimals') currentQuestions.push(generateDecimal(cat==='mixed_topics'? 'all' : opSub));
-        else if (currentCat === 'fractions') currentQuestions.push(generateFraction(cat==='mixed_topics'? 'all' : opSub));
-      }
-    }
-
-    // --- QUIZ FLOW LOGIC ---
-
-    function startQuiz() {
-      const name = document.getElementById('userName').value.trim();
-      const numQ = parseInt(document.getElementById('numQuestions').value);
-      
-      if (!name) {
-        showMessage('Required', 'Please enter your name to start.', 'fa-user');
-        return;
-      }
-      if (isNaN(numQ) || numQ < 1 || numQ > 100) {
-        showMessage('Invalid Input', 'Questions must be between 1 and 100.', 'fa-list-ol');
-        return;
-      }
-
-      buildQuiz();
-      currentQIndex = 0;
-      score = 0;
-      
-      switchView('quiz-screen');
-      renderQuestion();
-    }
-
-    function renderQuestion() {
-      const q = currentQuestions[currentQIndex];
-      document.getElementById('qCurrent').innerText = currentQIndex + 1;
-      document.getElementById('qTotal').innerText = quizSettings.total;
-      
-      const prog = ((currentQIndex) / quizSettings.total) * 100;
-      document.getElementById('progressBar').style.width = prog + '%';
-      
-      const qText = document.getElementById('questionText');
-      if (quizSettings.layout === 'vertical' && q.op) {
-        qText.innerHTML = `
-          <div class="inline-flex flex-col items-end leading-none py-2">
-            <div>${q.a}</div>
-            <div class="flex justify-between w-full border-b-[4px] border-slate-800 pt-2 pb-2 mb-2 gap-8">
-              <span class="text-slate-400">${q.op}</span>
-              <span>${q.b}</span>
+        <div class="p-8">
+          <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+              <p class="text-sm text-slate-500 font-semibold mb-1">Final Score</p>
+              <p class="text-3xl font-bold text-slate-800"><span id="finalScoreText">0</span><span class="text-lg text-slate-400">/<span id="finalTotalText">0</span></span></p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+              <p class="text-sm text-slate-500 font-semibold mb-1">Percentage</p>
+              <p class="text-3xl font-bold text-indigo-600"><span id="finalPercentageText">0</span>%</p>
             </div>
           </div>
-        `;
-      } else {
-        qText.innerHTML = q.text + ' = ?';
-      }
+          <button onclick="showView('setup-view')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">
+            <i class="fa-solid fa-rotate-right mr-2"></i> Practice Again
+          </button>
+        </div>
+      </div>
+    </div>
 
-      document.getElementById('questionHint').innerText = q.hint;
-      
-      const inp = document.getElementById('answerInput');
-      inp.value = '';
-      inp.disabled = false;
-      inp.focus();
+    <!-- 4. Admin Login View -->
+    <div id="admin-login-view" class="view-section hidden-view fade-enter fade-enter-active max-w-sm mx-auto">
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-lock text-2xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-800">Admin Portal</h2>
+          <p class="text-slate-500 text-sm mt-1">Enter password to view student progress.</p>
+        </div>
+        <form onsubmit="adminLogin(event)" class="space-y-4">
+          <div>
+            <input type="password" id="adminPass" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all text-center tracking-widest" placeholder="••••••">
+          </div>
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all">
+            Access Dashboard
+          </button>
+        </form>
+        <button onclick="showView('setup-view')" class="w-full mt-4 text-slate-500 hover:text-slate-800 font-medium py-2 transition-all">
+          Cancel
+        </button>
+      </div>
+    </div>
 
-      const fb = document.getElementById('feedbackArea');
-      fb.className = "h-16 flex items-center justify-center text-xl font-bold rounded-2xl transition-all duration-300 opacity-0 transform translate-y-4";
-      fb.innerHTML = "";
+    <!-- 5. Admin Dashboard View -->
+    <div id="admin-dashboard-view" class="view-section hidden-view fade-enter fade-enter-active">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800">Student Progress</h2>
+          <p class="text-slate-500 text-sm">Real-time view of all attempts.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="loadAdminData()" class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all font-medium text-sm shadow-sm flex items-center gap-2">
+            <i class="fa-solid fa-rotate"></i> Refresh
+          </button>
+          <button onclick="showView('setup-view')" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all font-medium text-sm shadow-sm">
+            Exit Admin
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider font-semibold">
+                <th class="p-4 w-48">Student / Date</th>
+                <th class="p-4">Topic / Settings</th>
+                <th class="p-4 text-center">Score</th>
+                <th class="p-4 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody" class="divide-y divide-slate-100 text-sm">
+              <!-- Rendered rows -->
+              <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading student data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Custom Alert Modal -->
+  <div id="msgModal" class="fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeMsg()"></div>
+    <div id="msgContent" class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 relative z-10 scale-95 transition-transform duration-300 shadow-2xl">
+      <div class="flex items-center gap-3 mb-4">
+        <div id="msgIcon" class="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 bg-blue-100 text-blue-600">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <h3 id="msgTitle" class="text-lg font-bold text-slate-800 leading-tight">Notice</h3>
+      </div>
+      <p id="msgText" class="text-slate-600 text-sm mb-6"></p>
+      <div class="flex justify-end">
+        <button onclick="closeMsg()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-medium transition-colors text-sm w-full">
+          Okay
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIREBASE & APP LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // 1. ENVIRONMENT / ADAPTER SETUP
+    const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+    const canvasAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    let app, auth, db, user;
+    let isFirebaseEnabled = false;
+    let isAppsScriptEnabled = false;
+    let unsubscribeAdminListener = null;
+
+    if (window.google && google.script && google.script.run) {
+      isAppsScriptEnabled = true;
     }
 
-    function submitAnswer(e) {
-      e.preventDefault();
-      const inp = document.getElementById('answerInput');
-      if (inp.disabled) return; // Prevent double submit
-      
-      let userAns = inp.value.trim().replace(/\s/g, ''); // strip spaces
-      if (!userAns && userAns !== "0") return;
+    if (firebaseConfigStr) {
+      try {
+        const firebaseConfig = JSON.parse(firebaseConfigStr);
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        isFirebaseEnabled = true;
 
-      // Allow users to type '+5' instead of just '5'
-      if (userAns.startsWith('+')) userAns = userAns.substring(1);
+        const initAuth = async () => {
+          if (initialAuthToken) {
+            await signInWithCustomToken(auth, initialAuthToken);
+          } else {
+            await signInAnonymously(auth);
+          }
+        };
+        initAuth();
 
-      const q = currentQuestions[currentQIndex];
-      let isCorrect = false;
-
-      // Handle fractions equivalence (basic safety check)
-      if (q.text.includes('/') || (quizSettings.category === 'fractions' || q.text.includes('flex-col'))) {
-         isCorrect = (userAns === q.answer);
-      } else if (q.text.includes('.')) {
-         // Allow things like .5 vs 0.5
-         isCorrect = parseFloat(userAns) === parseFloat(q.answer);
-      } else {
-         isCorrect = (userAns === q.answer);
+        onAuthStateChanged(auth, (u) => {
+          user = u;
+          if (u) hideLoading();
+        });
+      } catch (e) {
+        console.error("Firebase init failed:", e);
+        hideLoading();
       }
-
-      inp.disabled = true;
-      showFeedback(isCorrect, q.answer);
-
-      if (isCorrect) score++;
-
-      setTimeout(() => {
-        currentQIndex++;
-        if (currentQIndex < quizSettings.total) {
-          renderQuestion();
-        } else {
-          finishQuiz();
-        }
-      }, 1500);
+    } else {
+      hideLoading();
     }
 
-    function showFeedback(isCorrect, correctAns) {
-      const fb = document.getElementById('feedbackArea');
-      fb.classList.remove('opacity-0', 'translate-y-4');
-      
-      if (isCorrect) {
-        fb.classList.add('bg-green-100', 'text-green-700', 'opacity-100', 'translate-y-0');
-        fb.classList.remove('bg-red-100', 'text-red-700');
-        fb.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i> Correct!';
+    // 2. STATE MANAGEMENT
+    const state = {
+      sessionId: null,
+      firebaseDocId: null,
+      userName: '',
+      category: '',
+      settings: '',
+      total: 10,
+      score: 0,
+      currentIndex: 0,
+      questions: [],
+      completed: false
+    };
+
+    // 3. UI HELPER FUNCTIONS
+    window.showView = function(viewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden-view'));
+      document.getElementById(viewId).classList.remove('hidden-view');
+      if (unsubscribeAdminListener && viewId !== 'admin-dashboard-view') {
+        unsubscribeAdminListener();
+      }
+      if (viewId === 'setup-view') toggleTopicSettings();
+    };
+
+    window.toggleTopicSettings = function() {
+      const cat = document.getElementById('categorySelect').value;
+      const settingsPanel = document.getElementById('wholeNumberSettings');
+      if (cat === 'Addition' || cat === 'Subtraction') {
+        settingsPanel.style.display = 'block';
       } else {
-        fb.classList.add('bg-red-100', 'text-red-700', 'opacity-100', 'translate-y-0');
-        fb.classList.remove('bg-green-100', 'text-green-700');
-        fb.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> Incorrect. Answer: ${correctAns}`;
+        settingsPanel.style.display = 'none';
       }
     }
 
-    function finishQuiz() {
-      const name = document.getElementById('userName').value.trim();
-      document.getElementById('progressBar').style.width = '100%';
-      
-      document.getElementById('resName').innerText = name;
-      document.getElementById('scoreFinal').innerText = score;
-      document.getElementById('scoreTotal').innerText = quizSettings.total;
-      
-      const pct = Math.round((score / quizSettings.total) * 100);
-      document.getElementById('scorePercent').innerText = `${pct}% Accuracy`;
-
-      const icon = document.getElementById('resultIcon');
-      if (pct >= 90) {
-        icon.className = "w-20 h-20 mx-auto rounded-full flex items-center justify-center text-4xl mb-6 shadow-inner bg-yellow-100 text-yellow-500";
-        icon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
-      } else if (pct >= 70) {
-        icon.className = "w-20 h-20 mx-auto rounded-full flex items-center justify-center text-4xl mb-6 shadow-inner bg-green-100 text-green-500";
-        icon.innerHTML = '<i class="fa-solid fa-star"></i>';
-      } else {
-        icon.className = "w-20 h-20 mx-auto rounded-full flex items-center justify-center text-4xl mb-6 shadow-inner bg-blue-100 text-blue-500";
-        icon.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>';
+    function hideLoading() {
+      const loader = document.getElementById('loading-overlay');
+      if (loader) loader.style.display = 'none';
+      if (document.querySelectorAll('.view-section:not(.hidden-view)').length === 0) {
+        showView('setup-view');
       }
-
-      // Format details for saving
-      let details = "";
-      if (quizSettings.category === 'mixed_topics') {
-        details = "Combination of all operations";
-      } else if (quizSettings.category === 'addition' || quizSettings.category === 'subtraction') {
-        details = `${quizSettings.digits} Digits, ${quizSettings.regroup} regroup, ${quizSettings.layout}`;
-      } else if (quizSettings.category === 'integers') {
-        details = `Op: ${quizSettings.op}, Signs: ${quizSettings.intSign}, ${quizSettings.layout}`;
-      } else if (quizSettings.category === 'decimals') {
-        details = `Op: ${quizSettings.op}, ${quizSettings.layout}`;
-      } else if (quizSettings.category === 'fractions') {
-        details = `Op: ${quizSettings.op}`;
-      } else if (quizSettings.category === 'exponents') {
-        details = 'Standard';
-      } else {
-        details = `${quizSettings.layout} layout`;
-      }
-
-      // Save Data
-      const record = {
-        date: new Date().toISOString(),
-        userName: name,
-        category: quizSettings.category,
-        settings: details || 'Standard',
-        score: score,
-        total: quizSettings.total
-      };
-      
-      sessionResults.unshift(record); // Add to local session array
-
-      // Attempt to save to Apps Script backend if deployed
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(() => console.log('Saved to sheet'))
-          .withFailureHandler((e) => console.error('Error saving to sheet', e))
-          .saveResults(record);
-      }
-
-      switchView('results-screen');
     }
 
-    function endQuizEarly() {
-      // Custom confirm replacement
-      const modal = document.getElementById('messageModal');
-      const content = document.getElementById('messageModalContent');
-      document.getElementById('messageIcon').innerHTML = '<i class="fa-solid fa-circle-exclamation text-yellow-500"></i>';
-      document.getElementById('messageTitle').innerText = 'End Quiz?';
-      document.getElementById('messageText').innerText = 'Are you sure you want to end this quiz early? Your progress will be lost.';
+    window.showMsg = function(title, text, type='info') {
+      const modal = document.getElementById('msgModal');
+      const content = document.getElementById('msgContent');
+      const iconBox = document.getElementById('msgIcon');
       
-      // Mutate button temporarily for confirm action
-      const btn = content.querySelector('button');
-      const oldClick = btn.onclick;
-      const oldText = btn.innerText;
+      document.getElementById('msgTitle').innerText = title;
+      document.getElementById('msgText').innerText = text;
       
-      btn.innerText = 'Yes, End Quiz';
-      btn.className = 'w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors mt-2';
+      if(type === 'error') {
+        iconBox.className = "w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 bg-rose-100 text-rose-600";
+        iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+      } else if (type === 'success') {
+        iconBox.className = "w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 bg-emerald-100 text-emerald-600";
+        iconBox.innerHTML = '<i class="fa-solid fa-check"></i>';
+      } else {
+        iconBox.className = "w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 bg-blue-100 text-blue-600";
+        iconBox.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+      }
       
-      // Add cancel button
-      const cancelBtn = document.createElement('button');
-      cancelBtn.innerText = 'Cancel';
-      cancelBtn.className = 'w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors mt-2';
-      cancelBtn.onclick = () => {
-        closeMessage();
-        btn.onclick = oldClick;
-        btn.innerText = oldText;
-        btn.className = 'w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors';
-        cancelBtn.remove();
-      };
-      content.appendChild(cancelBtn);
-
-      btn.onclick = () => {
-        closeMessage();
-        btn.onclick = oldClick;
-        btn.innerText = oldText;
-        btn.className = 'w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors';
-        cancelBtn.remove();
-        showSetup();
-      };
-
       modal.classList.remove('hidden');
       setTimeout(() => {
         modal.classList.remove('opacity-0');
         content.classList.remove('scale-95');
       }, 10);
+    };
+
+    window.closeMsg = function() {
+      const modal = document.getElementById('msgModal');
+      const content = document.getElementById('msgContent');
+      modal.classList.add('opacity-0');
+      content.classList.add('scale-95');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    };
+
+    function formatDate() {
+      const d = new Date();
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     }
 
-    // --- NAVIGATION & UTILS ---
+    // 4. GENERATORS FOR NEW LOGIC
+    function generateAddition(digits, regrouping) {
+        let strA = "", strB = "";
+        let didRegroup = false;
 
-    function switchView(viewId) {
-      const views = ['setup-screen', 'quiz-screen', 'results-screen', 'dashboard-screen'];
-      views.forEach(v => {
-        const el = document.getElementById(v);
-        if (v === viewId) {
-          el.classList.remove('hidden-view');
-          // small delay to trigger animation
-          setTimeout(() => el.style.opacity = '1', 10);
-        } else {
-          el.classList.add('hidden-view');
-          el.style.opacity = '0';
+        for (let i = 0; i < digits; i++) {
+            let isFirst = (i === 0);
+            let minA = isFirst ? 1 : 0;
+            let a = Math.floor(Math.random() * (9 - minA + 1)) + minA;
+
+            let b;
+            if (regrouping === 'without') {
+                let maxB = 9 - a;
+                let minB = (isFirst && digits > 1 && a < 9) ? 1 : 0;
+                b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+            } else if (regrouping === 'with') {
+                if (!didRegroup && (i === digits - 1 || Math.random() > 0.5)) {
+                    // Force regrouping
+                    let minB = Math.max(10 - a, 0);
+                    if (minB > 9) minB = 9; // Fallback
+                    b = Math.floor(Math.random() * (9 - minB + 1)) + minB;
+                    didRegroup = true;
+                } else {
+                    // Random, but try not to regroup if we already did heavily
+                    b = Math.floor(Math.random() * 10);
+                }
+            } else {
+                b = Math.floor(Math.random() * 10);
+                if (isFirst && b === 0) b = 1;
+            }
+            strA += a; strB += b;
         }
+        return { a: parseInt(strA), b: parseInt(strB) };
+    }
+
+    function generateSubtraction(digits, regrouping) {
+        let strA = "", strB = "";
+        let didRegroup = false;
+
+        for (let i = 0; i < digits; i++) {
+            let isFirst = (i === 0);
+            let minA = isFirst ? 1 : 0;
+            let a = Math.floor(Math.random() * (9 - minA + 1)) + minA;
+
+            let b;
+            if (regrouping === 'without') {
+                let minB = (isFirst && digits > 1) ? 1 : 0;
+                b = Math.floor(Math.random() * (a - minB + 1)) + minB;
+            } else if (regrouping === 'with') {
+                if (isFirst) {
+                    // Cannot regroup leading digit, just make a > b
+                    b = Math.floor(Math.random() * a); 
+                } else {
+                    if (!didRegroup && (i === digits - 1 || Math.random() > 0.5)) {
+                        // Force regrouping: b > a
+                        let minB = a + 1;
+                        if (minB > 9) { a = 8; minB = 9; } // adjust A if needed
+                        b = Math.floor(Math.random() * (9 - minB + 1)) + minB;
+                        didRegroup = true;
+                    } else {
+                        b = Math.floor(Math.random() * 10);
+                    }
+                }
+            } else {
+                b = Math.floor(Math.random() * 10);
+                if (isFirst && b >= a) b = Math.max(0, a - 1);
+            }
+            strA += a; strB += b;
+        }
+        
+        let valA = parseInt(strA);
+        let valB = parseInt(strB);
+        if (valA < valB) { let temp = valA; valA = valB; valB = temp; }
+        return { a: valA, b: valB };
+    }
+
+
+    window.startQuiz = async function() {
+      const nameInput = document.getElementById('studentName').value.trim();
+      if (!nameInput) {
+        showMsg("Name Required", "Please enter your name before starting.", "error");
+        return;
+      }
+      
+      state.userName = nameInput;
+      state.category = document.getElementById('categorySelect').value;
+      state.total = parseInt(document.getElementById('questionsSelect').value);
+      
+      const digits = parseInt(document.getElementById('digitSelect').value);
+      const regrouping = document.getElementById('regroupingSelect').value;
+
+      if (state.category === 'Addition' || state.category === 'Subtraction') {
+          state.settings = `${state.total} Qs | ${digits} Digits | ${regrouping.charAt(0).toUpperCase() + regrouping.slice(1)} Regrouping`;
+      } else {
+          state.settings = `${state.total} Questions`;
+      }
+      
+      state.score = 0;
+      state.currentIndex = 0;
+      state.completed = false;
+      state.sessionId = 'SESS-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+      state.firebaseDocId = null;
+
+      state.questions = generateQuestionsList(state.category, state.total, digits, regrouping);
+      
+      document.getElementById('quizCategoryLabel').innerText = state.category;
+      document.getElementById('totalQNum').innerText = state.total;
+      document.getElementById('currentScore').innerText = state.score;
+      
+      await triggerSaveProgress();
+      loadQuestion();
+      showView('quiz-view');
+    };
+
+    function generateQuestionsList(category, count, digits, regrouping) {
+      let q = [];
+      for(let i=0; i<count; i++) {
+        // --- WHOLE NUMBERS ---
+        if(category === 'Addition') {
+          let nums = generateAddition(digits, regrouping);
+          q.push({ text: `${nums.a} + ${nums.b} = ?`, answer: nums.a + nums.b });
+        } 
+        else if(category === 'Subtraction') {
+          let nums = generateSubtraction(digits, regrouping);
+          q.push({ text: `${nums.a} - ${nums.b} = ?`, answer: nums.a - nums.b });
+        }
+        else if(category === 'Multiplication') {
+          let a = Math.floor(Math.random() * 12) + 1;
+          let b = Math.floor(Math.random() * 12) + 1;
+          q.push({ text: `${a} × ${b} = ?`, answer: a*b });
+        }
+        else if(category === 'Division') {
+          let b = Math.floor(Math.random() * 12) + 1;
+          let ans = Math.floor(Math.random() * 12) + 1;
+          let a = b * ans;
+          q.push({ text: `${a} ÷ ${b} = ?`, answer: ans });
+        }
+        
+        // --- INTEGERS ---
+        else if(category === 'Integer Addition') {
+          let a = (Math.floor(Math.random() * 30) - 15);
+          let b = (Math.floor(Math.random() * 30) - 15);
+          q.push({ text: `${a < 0 ? '('+a+')' : a} + ${b < 0 ? '('+b+')' : b} = ?`, answer: a+b });
+        }
+        else if(category === 'Integer Subtraction') {
+          let a = (Math.floor(Math.random() * 30) - 15);
+          let b = (Math.floor(Math.random() * 30) - 15);
+          q.push({ text: `${a < 0 ? '('+a+')' : a} - ${b < 0 ? '('+b+')' : b} = ?`, answer: a-b });
+        }
+        else if(category === 'Integer Multiplication') {
+          let a = (Math.floor(Math.random() * 20) - 10) || 1;
+          let b = (Math.floor(Math.random() * 20) - 10) || -1;
+          q.push({ text: `${a < 0 ? '('+a+')' : a} × ${b < 0 ? '('+b+')' : b} = ?`, answer: a*b });
+        }
+        else if(category === 'Integer Division') {
+          let b = (Math.floor(Math.random() * 12) - 6) || 2;
+          let ans = (Math.floor(Math.random() * 12) - 6) || -3;
+          let a = b * ans;
+          q.push({ text: `${a < 0 ? '('+a+')' : a} ÷ ${b < 0 ? '('+b+')' : b} = ?`, answer: ans });
+        }
+
+        // --- FRACTIONS ---
+        else if(category === 'Fractions') {
+          let type = Math.floor(Math.random() * 3);
+          if (type === 0) { // Same denominator addition
+            let d = Math.floor(Math.random() * 8) + 3;
+            let n1 = Math.floor(Math.random() * (d-1)) + 1;
+            let n2 = Math.floor(Math.random() * (d-1)) + 1;
+            q.push({ text: `${n1}/${d} + ${n2}/${d} = ?`, answer: (n1+n2)/d, displayAnswer: `${n1+n2}/${d}` });
+          } else if (type === 1) { // Multiplication
+            let n1 = Math.floor(Math.random() * 5) + 1;
+            let d1 = Math.floor(Math.random() * 5) + 2;
+            let n2 = Math.floor(Math.random() * 5) + 1;
+            let d2 = Math.floor(Math.random() * 5) + 2;
+            q.push({ text: `${n1}/${d1} × ${n2}/${d2} = ?`, answer: (n1*n2)/(d1*d2), displayAnswer: `${n1*n2}/${d1*d2}` });
+          } else { // Subtraction (Easy)
+             let d = Math.floor(Math.random() * 8) + 3;
+             let n1 = Math.floor(Math.random() * d) + 1;
+             let n2 = Math.floor(Math.random() * n1) + 1;
+             q.push({ text: `${n1}/${d} - ${n2}/${d} = ?`, answer: (n1-n2)/d, displayAnswer: `${n1-n2}/${d}` });
+          }
+        }
+
+        // --- DECIMALS ---
+        else if(category === 'Decimals') {
+           let type = Math.floor(Math.random() * 2);
+           if (type === 0) {
+              let a = (Math.random() * 10).toFixed(1);
+              let b = (Math.random() * 10).toFixed(1);
+              q.push({ text: `${a} + ${b} = ?`, answer: parseFloat(a) + parseFloat(b) });
+           } else {
+              let a = (Math.random() * 10).toFixed(1);
+              let b = (Math.random() * a).toFixed(1); // Ensure b < a
+              q.push({ text: `${a} - ${b} = ?`, answer: parseFloat(a) - parseFloat(b) });
+           }
+        }
+
+        // --- EXPONENTS ---
+        else if(category === 'Exponents') {
+           let base = Math.floor(Math.random() * 9) + 2; // 2 to 10
+           let exp = Math.floor(Math.random() * 3) + 2; // 2 to 4
+           if (base > 5 && exp > 2) exp = 2; // keep numbers reasonable
+           q.push({ text: `${base}<sup>${exp}</sup> = ?`, answer: Math.pow(base, exp) });
+        }
+
+        // --- LAWS OF EXPONENTS ---
+        else if(category === 'Laws of Exponents') {
+           let base = Math.floor(Math.random() * 5) + 2; 
+           let exp1 = Math.floor(Math.random() * 5) + 2; 
+           let exp2 = Math.floor(Math.random() * 5) + 2; 
+           let type = Math.floor(Math.random() * 3);
+           
+           if (type === 0) { // Multiplication -> Add exponents
+              q.push({ text: `Solve for n: ${base}<sup>${exp1}</sup> × ${base}<sup>${exp2}</sup> = ${base}<sup>n</sup>`, answer: exp1 + exp2 });
+           } else if (type === 1) { // Division -> Subtract exponents
+              let e1 = exp1 + exp2; // Ensure positive result
+              q.push({ text: `Solve for n: ${base}<sup>${e1}</sup> ÷ ${base}<sup>${exp1}</sup> = ${base}<sup>n</sup>`, answer: exp2 });
+           } else { // Power of a power -> Multiply
+              q.push({ text: `Solve for n: (${base}<sup>${exp1}</sup>)<sup>${exp2}</sup> = ${base}<sup>n</sup>`, answer: exp1 * exp2 });
+           }
+        }
+
+        // --- PERCENTAGE ---
+        else if(category === 'Percentage') {
+          const wholes = [10, 20, 25, 40, 50, 100, 200, 250, 400, 500];
+          const rates = [5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 80];
+          let w = wholes[Math.floor(Math.random() * wholes.length)];
+          let r = rates[Math.floor(Math.random() * rates.length)];
+          let p = (w * r) / 100;
+          
+          let type = Math.floor(Math.random() * 3);
+          if(type === 0) {
+            q.push({ text: `What is ${r}% of ${w}?`, answer: p, displayAnswer: String(p) });
+          } else if(type === 1) {
+            q.push({ text: `${p} is what percent of ${w}?`, answer: r, displayAnswer: String(r) });
+          } else {
+            q.push({ text: `${p} is ${r}% of what number?`, answer: w, displayAnswer: String(w) });
+          }
+        }
+      }
+      return q;
+    }
+
+    function loadQuestion() {
+      const qNum = state.currentIndex + 1;
+      const progressPct = ((qNum - 1) / state.total) * 100;
+      
+      document.getElementById('currentQNum').innerText = qNum;
+      document.getElementById('progressBar').style.width = `${progressPct}%`;
+      
+      const qData = state.questions[state.currentIndex];
+      document.getElementById('questionText').innerHTML = qData.text; // InnerHTML to support <sup>
+      
+      const input = document.getElementById('answerInput');
+      input.value = '';
+      input.disabled = false;
+      input.focus();
+      
+      const form = document.getElementById('answerForm');
+      form.querySelector('button').classList.remove('hidden');
+      
+      const feedback = document.getElementById('feedbackBox');
+      feedback.classList.add('hidden');
+      document.getElementById('nextBtn').classList.add('hidden');
+    }
+
+    function parseUserAnswer(inputStr) {
+      inputStr = inputStr.trim();
+      // Handle Fractions (e.g. 3/4)
+      if (inputStr.includes('/')) {
+         let parts = inputStr.split('/');
+         if (parts.length === 2) {
+            let n = parseFloat(parts[0]);
+            let d = parseFloat(parts[1]);
+            if (!isNaN(n) && !isNaN(d) && d !== 0) return n / d;
+         }
+      }
+      // Handle normal numbers / decimals
+      return parseFloat(inputStr);
+    }
+
+    window.submitAnswer = async function(e) {
+      e.preventDefault();
+      const inputEl = document.getElementById('answerInput');
+      const val = parseUserAnswer(inputEl.value);
+      
+      if (isNaN(val)) return; 
+      
+      const qData = state.questions[state.currentIndex];
+      
+      // Floating point comparison with epsilon
+      const isCorrect = Math.abs(val - qData.answer) < 0.001; 
+      
+      inputEl.disabled = true;
+      document.getElementById('answerForm').querySelector('button').classList.add('hidden');
+      
+      const feedback = document.getElementById('feedbackBox');
+      const fText = document.getElementById('feedbackText');
+      const fHint = document.getElementById('correctAnswerHint');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      feedback.classList.remove('hidden');
+      nextBtn.classList.remove('hidden');
+      nextBtn.focus();
+      
+      if (isCorrect) {
+        state.score++;
+        document.getElementById('currentScore').innerText = state.score;
+        feedback.className = "mt-6 p-4 rounded-xl bg-emerald-500 text-white";
+        fText.innerHTML = `<i class="fa-solid fa-circle-check"></i> Correct!`;
+        fHint.innerText = "";
+      } else {
+        feedback.className = "mt-6 p-4 rounded-xl bg-rose-500 text-white";
+        fText.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Incorrect`;
+        
+        let correctDisplay = qData.displayAnswer || (Math.round(qData.answer * 1000)/1000).toString();
+        fHint.innerText = `The correct answer was ${correctDisplay}.`;
+      }
+      
+      if (state.currentIndex === state.total - 1) {
+        state.completed = true;
+        nextBtn.innerHTML = `Finish Quiz <i class="fa-solid fa-flag-checkered ml-1"></i>`;
+      }
+
+      await triggerSaveProgress();
+    };
+
+    window.nextQuestion = function() {
+      if (state.completed) {
+        finishQuiz();
+      } else {
+        state.currentIndex++;
+        loadQuestion();
+      }
+    };
+
+    window.quitQuiz = function() {
+      state.completed = false; 
+      triggerSaveProgress(); 
+      showView('setup-view');
+      showMsg("Progress Saved", "Your incomplete attempt has been saved.", "info");
+    };
+
+    function finishQuiz() {
+      document.getElementById('resultName').innerText = state.userName;
+      document.getElementById('finalScoreText').innerText = state.score;
+      document.getElementById('finalTotalText').innerText = state.total;
+      
+      const pct = Math.round((state.score / state.total) * 100);
+      document.getElementById('finalPercentageText').innerText = pct;
+      
+      showView('result-view');
+    }
+
+    // 5. STORAGE ADAPTERS
+    async function triggerSaveProgress() {
+      const dataPayload = {
+        sessionId: state.sessionId,
+        date: formatDate(),
+        userName: state.userName,
+        category: state.category,
+        settings: state.settings,
+        score: state.score,
+        total: state.total,
+        completed: state.completed
+      };
+
+      if (isAppsScriptEnabled) {
+        google.script.run.withFailureHandler(err => console.error("Save failed:", err)).saveProgress(dataPayload);
+      } else if (isFirebaseEnabled && user) {
+        try {
+          const sessionsRef = collection(db, 'artifacts', canvasAppId, 'public', 'data', 'sessions');
+          if (state.firebaseDocId) {
+            const docRef = doc(db, 'artifacts', canvasAppId, 'public', 'data', 'sessions', state.firebaseDocId);
+            await updateDoc(docRef, {
+              score: state.score,
+              completed: state.completed,
+              percentage: Math.round((state.score / state.total) * 100),
+              updatedAt: serverTimestamp()
+            });
+          } else {
+            const docRef = await addDoc(sessionsRef, {
+              ...dataPayload,
+              percentage: Math.round((state.score / state.total) * 100),
+              timestamp: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            state.firebaseDocId = docRef.id;
+          }
+        } catch(e) {
+          console.error("Firebase save error:", e);
+        }
+      }
+    }
+
+    // 6. ADMIN PORTAL LOGIC
+    window.adminLogin = function(e) {
+      e.preventDefault();
+      const pass = document.getElementById('adminPass').value;
+      if (pass === 'admin1') {
+        document.getElementById('adminPass').value = '';
+        showView('admin-dashboard-view');
+        loadAdminData();
+      } else {
+        showMsg("Access Denied", "Incorrect password.", "error");
+      }
+    };
+
+    window.loadAdminData = function() {
+      const tbody = document.getElementById('adminTableBody');
+      tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading live data...</td></tr>';
+
+      if (isAppsScriptEnabled) {
+        google.script.run
+          .withSuccessHandler(records => {
+             if (records.error) {
+               showMsg("Error", records.error, "error");
+               return;
+             }
+             renderAdminTable(records);
+          })
+          .withFailureHandler(err => {
+             tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-rose-500">Error loading data.</td></tr>`;
+          })
+          .getAdminData('admin1');
+
+      } else if (isFirebaseEnabled && user) {
+        const sessionsRef = collection(db, 'artifacts', canvasAppId, 'public', 'data', 'sessions');
+        
+        if(unsubscribeAdminListener) unsubscribeAdminListener();
+
+        unsubscribeAdminListener = onSnapshot(sessionsRef, (snapshot) => {
+          const records = [];
+          snapshot.forEach(docSnap => records.push(docSnap.data()));
+          
+          records.sort((a, b) => {
+            const timeA = a.updatedAt ? a.updatedAt.toMillis() : 0;
+            const timeB = b.updatedAt ? b.updatedAt.toMillis() : 0;
+            return timeB - timeA;
+          });
+          
+          renderAdminTable(records);
+        }, (error) => {
+          console.error("Admin fetch error", error);
+          tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-rose-500">Database connection error.</td></tr>`;
+        });
+      } else {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-400">Database not connected. Please deploy via Google Apps Script or run in Canvas preview.</td></tr>`;
+      }
+    };
+
+    function renderAdminTable(records) {
+      const tbody = document.getElementById('adminTableBody');
+      tbody.innerHTML = '';
+      
+      if (!records || records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400">No student sessions found yet.</td></tr>';
+        return;
+      }
+
+      records.forEach(r => {
+        const isComplete = r.status === 'Complete' || r.completed === true;
+        const statusClass = isComplete ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+        const statusText = isComplete ? 'Completed' : 'Incomplete';
+        const pctText = r.percentage !== undefined ? String(r.percentage).replace('%','') + '%' : '0%';
+        
+        let displayDate = r.date;
+        if (!displayDate && r.updatedAt && r.updatedAt.toDate) {
+            displayDate = r.updatedAt.toDate().toLocaleString([], {hour: '2-digit', minute:'2-digit', month:'short', day:'numeric'});
+        } else if (!displayDate) {
+            displayDate = "Just now";
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition-colors";
+        tr.innerHTML = `
+          <td class="p-4">
+            <div class="font-bold text-slate-800">${r.userName || 'Unknown'}</div>
+            <div class="text-xs text-slate-400">${displayDate}</div>
+          </td>
+          <td class="p-4">
+            <div class="font-semibold text-slate-700">${r.category}</div>
+            <div class="text-xs text-slate-500">${r.settings}</div>
+          </td>
+          <td class="p-4 text-center">
+            <div class="font-bold text-indigo-600 text-lg">${r.score}/${r.total}</div>
+            <div class="text-xs font-medium text-slate-400">${pctText}</div>
+          </td>
+          <td class="p-4 text-center">
+            <span class="px-3 py-1 rounded-full text-xs font-bold ${statusClass}">
+              ${statusText}
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
       });
     }
 
-    function showSetup() { switchView('setup-screen'); }
+    // Initialize toggle state on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      toggleTopicSettings();
+    });
 
-    function showDashboard() {
-      renderDashboard();
-      switchView('dashboard-screen');
-    }
-
-    function renderDashboard() {
-      const tbody = document.getElementById('dashboardBody');
-      const empty = document.getElementById('emptyDashboard');
-      
-      tbody.innerHTML = '';
-      
-      if (sessionResults.length === 0) {
-        empty.classList.remove('hidden');
-      } else {
-        empty.classList.add('hidden');
-        sessionResults.forEach(r => {
-          const pct = Math.round((r.score / r.total) * 100);
-          let color = 'bg-blue-100 text-blue-700';
-          if (pct >= 90) color = 'bg-yellow-100 text-yellow-700';
-          else if (pct >= 70) color = 'bg-green-100 text-green-700';
-          else if (pct < 50) color = 'bg-red-100 text-red-700';
-
-          const dateStr = new Date(r.date).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
-
-          const tr = document.createElement('tr');
-          tr.className = "hover:bg-slate-50 transition-colors";
-          tr.innerHTML = `
-            <td class="p-4 text-sm text-slate-500">${dateStr}</td>
-            <td class="p-4 font-semibold text-slate-800">${r.userName}</td>
-            <td class="p-4">
-              <div class="text-sm font-medium text-slate-800 capitalize">${r.category}</div>
-              <div class="text-xs text-slate-500">${r.settings}</div>
-            </td>
-            <td class="p-4 text-center">
-              <span class="px-3 py-1 rounded-full text-xs font-bold ${color}">
-                ${r.score} / ${r.total} (${pct}%)
-              </span>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-    }
-
-    function showMessage(title, text, iconClass = 'fa-circle-info') {
-      const modal = document.getElementById('messageModal');
-      const content = document.getElementById('messageModalContent');
-      document.getElementById('messageTitle').innerText = title;
-      document.getElementById('messageText').innerText = text;
-      document.getElementById('messageIcon').innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
-      
-      modal.classList.remove('hidden');
-      setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        content.classList.remove('scale-95');
-      }, 10);
-    }
-
-    function closeMessage() {
-      const modal = document.getElementById('messageModal');
-      const content = document.getElementById('messageModalContent');
-      
-      modal.classList.add('opacity-0');
-      content.classList.add('scale-95');
-      setTimeout(() => {
-        modal.classList.add('hidden');
-      }, 300);
-    }
-
-    // Initialize
-    window.onload = init;
   </script>
 </body>
 </html>
